@@ -1,0 +1,37 @@
+/* wraps the left sidebar + center grid */
+.schaden-overview-root {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* outer grid with left fixed sidebar + center area */
+.schaden-overview-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 16px;
+  width: 100%;
+}
+
+/* fixed left sidebar */
+.schaden-sidebar {
+  flex: 0 0 280px;
+  max-width: 280px;
+}
+
+/* center area containing a 2-col grid (left content + Beziehungen) */
+.schaden-center {
+  min-width: 0; /* prevents overflow */
+  width: 100%;
+}
+
+/* inner columns need to be able to shrink */
+.col-main,
+.col-rel {
+  min-width: 0;
+}
+
+/* small, consistent look for cards/accordions */
+.card {
+  border-radius: 8px;
+  overflow: hidden;
+}
