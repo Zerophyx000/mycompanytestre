@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Box,
   Container,
@@ -18,6 +18,7 @@ import {
   MenuItem,
   Grid,
   Divider,
+  ButtonGroup,
 } from "@mui/material";
 import {
   Home as HomeIcon,
@@ -40,10 +41,10 @@ export type SchadenRow = {
   adrKeyNew: string;
   alternateKey: string;
   proKey: string;
-  aDate: string;
-  origin: string;
+  aDate: string;   // ISO yyyy-mm-dd
+  origin: string;  // e.g. Web / API / Import
   class: string;
-  status: string;
+  status: string;  // Active / Pending / Inactive / …
   statusDate: string;
 };
 
@@ -51,9 +52,57 @@ export type SchadenPageProps = {
   onOpenClaim?: (row: SchadenRow) => void;
 };
 
+// ---- Quick Views for Schaden ----
+type ViewKey =
+  | "aktuell"
+  | "naechste"
+  | "alle"
+  | "uebergeben"
+  | "meineAuftraege"
+  | "meineProjekte"
+  | "zuVisieren"
+  | "meineVerdankungen";
+
+const SCHADEN_VIEWS: { key: ViewKey; label: string; predicate: (r: SchadenRow) => boolean }[] = [
+  { key: "aktuell", label: "Aktuell", predicate: (r) => r.status === "Active" },
+  { key: "naechste", label: "Nächste", predicate: (r) => r.status === "Pending" },
+  { key: "alle", label: "Alle", predicate: () => true },
+  // Example placeholders — replace with real rules:
+  { key: "uebergeben", label: "Übergeben", predicate: (r) => r.origin === "API" || r.origin === "Import" },
+  { key: "meineAuftraege", label: "Meine Aufträge", predicate: () => true },
+  { key: "meineProjekte", label: "Meine Projekte", predicate: () => true },
+  { key: "zuVisieren", label: "Zu Visieren", predicate: () => true },
+  { key: "meineVerdankungen", label: "Meine Verdankungen", predicate: () => true },
+];
+
+function QuickViewsBar({
+  active,
+  onChange,
+}: {
+  active: ViewKey;
+  onChange: (k: ViewKey) => void;
+}) {
+  return (
+    <Box sx={{ p: 1 }}>
+      <ButtonGroup size="small" variant="outlined" sx={{ flexWrap: "wrap", gap: 1 }}>
+        {SCHADEN_VIEWS.map((v) => (
+          <Button
+            key={v.key}
+            variant={active === v.key ? "contained" : "outlined"}
+            onClick={() => onChange(v.key)}
+          >
+            {v.label}
+          </Button>
+        ))}
+      </ButtonGroup>
+    </Box>
+  );
+}
+
 export default function SchadenPage({ onOpenClaim }: SchadenPageProps) {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [activeView, setActiveView] = useState<ViewKey>("aktuell");
 
   const [claimType, setClaimType] = useState("");
   const [formData, setFormData] = useState({
@@ -71,11 +120,11 @@ export default function SchadenPage({ onOpenClaim }: SchadenPageProps) {
   const navigateToHome = () => console.log("Navigate to home");
 
   const rows: SchadenRow[] = [
-    { id: 1, adrKey: "ADR001234", ownType: "Individual", evtTyp: "Update", evtKey: "EVT7891", memberKey: "MBR45678", member: "John Smith", adrKeyMain: "ADR001234", adrKeyNew: "ADR001235", alternateKey: "ALT789123", proKey: "PRO456789", aDate: "2024-01-15", origin: "Web", class: "Premium", status: "Active", statusDate: "2024-01-15" },
-    { id: 2, adrKey: "ADR002345", ownType: "Company",    evtTyp: "Create", evtKey: "EVT7892", memberKey: "MBR45679", member: "Jane Doe",   adrKeyMain: "ADR002345", adrKeyNew: "ADR002346", alternateKey: "ALT789124", proKey: "PRO456790", aDate: "2024-01-16", origin: "Import", class: "Standard", status: "Pending", statusDate: "2024-01-16" },
-    { id: 3, adrKey: "ADR003456", ownType: "Partnership", evtTyp: "Delete", evtKey: "EVT7893", memberKey: "MBR45680", member: "Bob Johnson", adrKeyMain: "ADR003456", adrKeyNew: "ADR003457", alternateKey: "ALT789125", proKey: "PRO456791", aDate: "2024-01-17", origin: "Manual", class: "Basic", status: "Inactive", statusDate: "2024-01-17" },
-    { id: 4, adrKey: "ADR004567", ownType: "Individual",  evtTyp: "Update", evtKey: "EVT7894", memberKey: "MBR45681", member: "Sarah Wilson", adrKeyMain: "ADR004567", adrKeyNew: "ADR004568", alternateKey: "ALT789126", proKey: "PRO456792", aDate: "2024-01-18", origin: "API", class: "Premium", status: "Active", statusDate: "2024-01-18" },
-    { id: 5, adrKey: "ADR005678", ownType: "Company",     evtTyp: "Create", evtKey: "EVT7895", memberKey: "MBR45682", member: "Mike Brown",  adrKeyMain: "ADR005678", adrKeyNew: "ADR005679", alternateKey: "ALT789127", proKey: "PRO456793", aDate: "2024-01-19", origin: "Batch", class: "Enterprise", status: "Active", statusDate: "2024-01-19" },
+    { id: 1, adrKey: "ADR001234", ownType: "Individual", evtTyp: "Update", evtKey: "EVT7891", memberKey: "MBR45678", member: "John Smith", adrKeyMain: "ADR001234", adrKeyNew: "ADR001235", alternateKey: "ALT789123", proKey: "PRO456789", aDate: "2024-01-15", origin: "Web",   class: "Premium",    status: "Active",   statusDate: "2024-01-15" },
+    { id: 2, adrKey: "ADR002345", ownType: "Company",    evtTyp: "Create", evtKey: "EVT7892", memberKey: "MBR45679", member: "Jane Doe",   adrKeyMain: "ADR002345", adrKeyNew: "ADR002346", alternateKey: "ALT789124", proKey: "PRO456790", aDate: "2024-01-16", origin: "Import", class: "Standard",   status: "Pending",  statusDate: "2024-01-16" },
+    { id: 3, adrKey: "ADR003456", ownType: "Partnership", evtTyp: "Delete", evtKey: "EVT7893", memberKey: "MBR45680", member: "Bob Johnson", adrKeyMain: "ADR003456", adrKeyNew: "ADR003457", alternateKey: "ALT789125", proKey: "PRO456791", aDate: "2024-01-17", origin: "Manual", class: "Basic",      status: "Inactive", statusDate: "2024-01-17" },
+    { id: 4, adrKey: "ADR004567", ownType: "Individual",  evtTyp: "Update", evtKey: "EVT7894", memberKey: "MBR45681", member: "Sarah Wilson", adrKeyMain: "ADR004567", adrKeyNew: "ADR004568", alternateKey: "ALT789126", proKey: "PRO456792", aDate: "2024-01-18", origin: "API",   class: "Premium",    status: "Active",   statusDate: "2024-01-18" },
+    { id: 5, adrKey: "ADR005678", ownType: "Company",     evtTyp: "Create", evtKey: "EVT7895", memberKey: "MBR45682", member: "Mike Brown",  adrKeyMain: "ADR005678", adrKeyNew: "ADR005679", alternateKey: "ALT789127", proKey: "PRO456793", aDate: "2024-01-19", origin: "Batch",  class: "Enterprise", status: "Active",   statusDate: "2024-01-19" },
   ];
 
   const columns = [
@@ -95,6 +144,9 @@ export default function SchadenPage({ onOpenClaim }: SchadenPageProps) {
     { field: "status", headerName: "Status", width: 100 },
     { field: "statusDate", headerName: "StatusDate", width: 120 },
   ];
+
+  const activePredicate = SCHADEN_VIEWS.find((v) => v.key === activeView)?.predicate ?? (() => true);
+  const filteredRows = useMemo(() => rows.filter(activePredicate), [activePredicate]);
 
   const handleInputChange = (field: string, value: string) =>
     setFormData((p) => ({ ...p, [field]: value }));
@@ -178,8 +230,10 @@ export default function SchadenPage({ onOpenClaim }: SchadenPageProps) {
         </Stack>
 
         <Paper elevation={1}>
-            <DataGrid
-            rows={rows}
+          <QuickViewsBar active={activeView} onChange={setActiveView} />
+
+          <DataGrid
+            rows={filteredRows}
             columns={columns}
             autoHeight
             initialState={{ pagination: { paginationModel: { page: 0, pageSize: 10 } } }}
@@ -189,10 +243,9 @@ export default function SchadenPage({ onOpenClaim }: SchadenPageProps) {
             onRowClick={(p: GridRowParams) => onOpenClaim?.(p.row as SchadenRow)}
             slots={{ toolbar: GridToolbar }}
             slotProps={{
-                toolbar: { showQuickFilter: true, quickFilterProps: { debounceMs: 500 } },
+              toolbar: { showQuickFilter: true, quickFilterProps: { debounceMs: 500 } },
             }}
-            />
-
+          />
         </Paper>
       </Container>
 

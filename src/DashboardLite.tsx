@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 import {
   AppBar,
   Avatar,
@@ -13,6 +13,7 @@ import {
   Toolbar,
   Tooltip,
   Typography,
+  ButtonGroup,
 } from "@mui/material";
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 
@@ -30,7 +31,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 import "./DashboardLite.css";
 
-type Row = { id: number; name: string; status: string };
+type Row = { id: number; name: string; status: "Active" | "Pending" | "Inactive" };
 
 const rows: Row[] = [
   { id: 1, name: "John Smith", status: "Active" },
@@ -44,7 +45,58 @@ const columns: GridColDef<Row>[] = [
   { field: "status", headerName: "Status", width: 160 },
 ];
 
+// ---- Quick Views setup ----
+type ViewKey =
+  | "aktuell"
+  | "naechste"
+  | "alle"
+  | "uebergeben"
+  | "meineAuftraege"
+  | "meineProjekte"
+  | "zuVisieren"
+  | "meineVerdankungen";
+
+const DASHBOARD_VIEWS: { key: ViewKey; label: string; predicate: (r: Row) => boolean }[] = [
+  { key: "aktuell", label: "Aktuell", predicate: (r) => r.status === "Active" },
+  { key: "naechste", label: "Nächste", predicate: (r) => r.status === "Pending" },
+  { key: "alle", label: "Alle", predicate: () => true },
+  // The rest are placeholders — adjust to your domain rules when you have them:
+  { key: "uebergeben", label: "Übergeben", predicate: () => true },
+  { key: "meineAuftraege", label: "Meine Aufträge", predicate: () => true },
+  { key: "meineProjekte", label: "Meine Projekte", predicate: () => true },
+  { key: "zuVisieren", label: "Zu Visieren", predicate: () => true },
+  { key: "meineVerdankungen", label: "Meine Verdankungen", predicate: () => true },
+];
+
+function QuickViewsBar({
+  active,
+  onChange,
+}: {
+  active: ViewKey;
+  onChange: (k: ViewKey) => void;
+}) {
+  return (
+    <Box sx={{ p: 1 }}>
+      <ButtonGroup size="small" variant="outlined" sx={{ flexWrap: "wrap", gap: 1 }}>
+        {DASHBOARD_VIEWS.map((v) => (
+          <Button
+            key={v.key}
+            variant={active === v.key ? "contained" : "outlined"}
+            onClick={() => onChange(v.key)}
+          >
+            {v.label}
+          </Button>
+        ))}
+      </ButtonGroup>
+    </Box>
+  );
+}
+
 export default function DashboardLite() {
+  const [activeView, setActiveView] = useState<ViewKey>("aktuell");
+  const activePredicate = DASHBOARD_VIEWS.find((v) => v.key === activeView)?.predicate ?? (() => true);
+  const filteredRows = useMemo(() => rows.filter(activePredicate), [activePredicate]);
+
   return (
     <Box className="dashboard-root">
       <AppBar position="static" color="transparent" elevation={0}>
@@ -107,12 +159,16 @@ export default function DashboardLite() {
             <Tooltip title="Exportieren"><IconButton><DownloadIcon /></IconButton></Tooltip>
             <Tooltip title="Mehr"><IconButton><MoreVertIcon /></IconButton></Tooltip>
           </Toolbar>
+
+          <QuickViewsBar active={activeView} onChange={setActiveView} />
+
           <Divider />
           <DataGrid
-            rows={rows}
+            rows={filteredRows}
             columns={columns}
             pageSizeOptions={[5]}
             disableRowSelectionOnClick
+            autoHeight
           />
         </Paper>
       </Box>
