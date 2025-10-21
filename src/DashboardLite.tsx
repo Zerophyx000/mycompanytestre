@@ -45,7 +45,6 @@ const columns: GridColDef<Row>[] = [
   { field: "status", headerName: "Status", width: 160 },
 ];
 
-// ---- Quick Views setup ----
 type ViewKey =
   | "aktuell"
   | "naechste"
@@ -60,7 +59,6 @@ const DASHBOARD_VIEWS: { key: ViewKey; label: string; predicate: (r: Row) => boo
   { key: "aktuell", label: "Aktuell", predicate: (r) => r.status === "Active" },
   { key: "naechste", label: "Nächste", predicate: (r) => r.status === "Pending" },
   { key: "alle", label: "Alle", predicate: () => true },
-  // The rest are placeholders — adjust to your domain rules when you have them:
   { key: "uebergeben", label: "Übergeben", predicate: () => true },
   { key: "meineAuftraege", label: "Meine Aufträge", predicate: () => true },
   { key: "meineProjekte", label: "Meine Projekte", predicate: () => true },

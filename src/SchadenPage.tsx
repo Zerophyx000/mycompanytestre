@@ -41,10 +41,10 @@ export type SchadenRow = {
   adrKeyNew: string;
   alternateKey: string;
   proKey: string;
-  aDate: string;   // ISO yyyy-mm-dd
-  origin: string;  // e.g. Web / API / Import
+  aDate: string;   
+  origin: string;  
   class: string;
-  status: string;  // Active / Pending / Inactive / …
+  status: string;  
   statusDate: string;
 };
 
@@ -52,7 +52,6 @@ export type SchadenPageProps = {
   onOpenClaim?: (row: SchadenRow) => void;
 };
 
-// ---- Quick Views for Schaden ----
 type ViewKey =
   | "aktuell"
   | "naechste"
@@ -67,7 +66,6 @@ const SCHADEN_VIEWS: { key: ViewKey; label: string; predicate: (r: SchadenRow) =
   { key: "aktuell", label: "Aktuell", predicate: (r) => r.status === "Active" },
   { key: "naechste", label: "Nächste", predicate: (r) => r.status === "Pending" },
   { key: "alle", label: "Alle", predicate: () => true },
-  // Example placeholders — replace with real rules:
   { key: "uebergeben", label: "Übergeben", predicate: (r) => r.origin === "API" || r.origin === "Import" },
   { key: "meineAuftraege", label: "Meine Aufträge", predicate: () => true },
   { key: "meineProjekte", label: "Meine Projekte", predicate: () => true },
