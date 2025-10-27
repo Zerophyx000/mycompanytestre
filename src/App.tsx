@@ -51,7 +51,7 @@ type User = {
 
 const USERS: Record<User["id"], User> = {
   max:  { id: "max",  name: "Max Mustermann", avatar: "MM", permissions: ["dashboard", "schaeden", "calendar"] },
-  anna: { id: "anna", name: "Anna Admin",     avatar: "AA", permissions: ["dashboard", "adressen", "calendar"] },
+  anna: { id: "anna", name: "Anna Admin",     avatar: "AA", permissions: ["dashboard", "adressen"] },
 };
 
 const RECENT_MAX = 8;
