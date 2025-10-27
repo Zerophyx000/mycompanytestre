@@ -41,7 +41,6 @@ export default function SchadenCalendar({ rows }: CalendarProps) {
     day = addDays(day, 1);
   }
 
-  // map rows by date string (yyyy-MM-dd)
   const eventsByDate: Record<string, SchadenRow[]> = {};
   rows.forEach((row) => {
     const key = row.aDate;
@@ -51,7 +50,6 @@ export default function SchadenCalendar({ rows }: CalendarProps) {
 
   return (
     <Box>
-      {/* Header */}
       <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
         <IconButton onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}>
           <ChevronLeft />
@@ -70,7 +68,6 @@ export default function SchadenCalendar({ rows }: CalendarProps) {
         </Button>
       </Stack>
 
-      {/* Weekday header */}
       <Box
         display="grid"
         gridTemplateColumns="repeat(7, 1fr)"
@@ -84,7 +81,6 @@ export default function SchadenCalendar({ rows }: CalendarProps) {
         ))}
       </Box>
 
-      {/* Grid */}
       <Box
         display="grid"
         gridTemplateColumns="repeat(7, 1fr)"
