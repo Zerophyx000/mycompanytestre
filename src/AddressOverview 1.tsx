@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from "react";
 import {
   Box,
@@ -19,7 +20,7 @@ import {
   Edit as EditIcon,
   Business as BusinessIcon,
 } from "@mui/icons-material";
-import { addressData } from "./AddressPage3";
+import { addressData } from "./AddressPage";
 
 type Props = { adrKey: string };
 

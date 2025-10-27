@@ -13,7 +13,6 @@ import {
   Tab,
   Tabs,
   Toolbar,
-  Tooltip,
   Typography,
   Button,
 } from "@mui/material";
@@ -24,9 +23,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import CloseIcon from "@mui/icons-material/Close";
-
 import DashboardLite from "./DashboardLite";
-import AdressePage from "./AddressPage3"; 
+import { AddressPage } from "./AddressPage";
 import SchadenPage, { type SchadenRow } from "./SchadenPage";
 import SchadenTabs from "./SchadenTabs";
 import { AddressDetailLayout } from "./AddressDetailLayout 2";
@@ -42,7 +40,6 @@ export default function App() {
     { key: "dashboard", label: "Dashboard", element: <DashboardLite /> },
   ]);
   const [activeKey, setActiveKey] = React.useState("dashboard");
-
   const activeIndex = Math.max(0, tabs.findIndex((t) => t.key === activeKey));
 
   const openTab = (key: "dashboard" | "adressen" | "schaeden") => {
@@ -54,7 +51,7 @@ export default function App() {
         ? {
             key,
             label: "Adressen",
-            element: <AdressePage onOpenAddress={openAddressTab} />,
+            element: <AddressPage onOpenAddress={openAddressTab} />,
           }
         : key === "schaeden"
         ? {
@@ -78,6 +75,7 @@ export default function App() {
       label: `Schaden ${row.adrKey}`,
       element: <SchadenTabs claim={row} />,
     };
+
     setTabs((prev) => [...prev, next]);
     setActiveKey(key);
   };
@@ -92,6 +90,7 @@ export default function App() {
       label: `Adresse ${adrKey}`,
       element: <AddressDetailLayout adrKey={adrKey} />,
     };
+
     setTabs((prev) => [...prev, next]);
     setActiveKey(key);
   };
@@ -109,108 +108,112 @@ export default function App() {
     activeKey.startsWith("claim:") || activeKey.startsWith("address:");
 
   return (
-    <Box display="flex" flexDirection="column" minHeight="100vh">
-      <AppBar position="static" color="transparent" elevation={0}>
+    <Box display="flex" flexDirection="column" height="100vh" width="100vw" overflow="hidden">
+      {/* Top bar */}
+      <AppBar position="static" elevation={0}>
         <Toolbar>
-          <Avatar>MC</Avatar>
-          <Box flexGrow={1} />
-          <Tooltip title="Suchen">
-            <IconButton size="small">
-              <SearchIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Chat">
-            <IconButton size="small">
-              <ChatBubbleOutlineIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Benachrichtigungen">
-            <IconButton size="small">
-              <NotificationsNoneIcon />
-            </IconButton>
-          </Tooltip>
-          <Button variant="contained" size="small">
-            Aktion
-          </Button>
+          <Avatar sx={{ bgcolor: "primary.main", mr: 2 }}>MC</Avatar>
+          <Typography variant="h6" sx={{ mr: 3 }}>
+            MeinUnternehmen
+          </Typography>
+          <Button color="inherit">Test</Button>
+          <Box flex={1} />
+          <IconButton color="inherit">
+            <SearchIcon />
+          </IconButton>
+          <IconButton color="inherit">
+            <ChatBubbleOutlineIcon />
+          </IconButton>
+          <IconButton color="inherit">
+            <NotificationsNoneIcon />
+          </IconButton>
+          <Button color="inherit">Matt AI</Button>
+          <Button color="inherit">Aktion</Button>
         </Toolbar>
-      </AppBar>
-
-      <Paper square>
         <Tabs
           value={activeIndex}
           onChange={(_, idx) => setActiveKey(tabs[idx].key)}
           variant="scrollable"
           scrollButtons="auto"
+          sx={{ bgcolor: "background.paper", px: 2 }}
         >
           {tabs.map((t) => (
             <Tab
               key={t.key}
               label={
-                <Stack direction="row" alignItems="center" spacing={1}>
-                  <Typography variant="body2">{t.label}</Typography>
-                  <IconButton
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      closeTab(t.key);
-                    }}
-                  >
-                    <CloseIcon fontSize="small" />
-                  </IconButton>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Typography>{t.label}</Typography>
+                  {tabs.length > 1 && (
+                    <IconButton
+                      size="small"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        closeTab(t.key);
+                      }}
+                    >
+                      <CloseIcon fontSize="small" />
+                    </IconButton>
+                  )}
                 </Stack>
               }
             />
           ))}
         </Tabs>
-      </Paper>
+      </AppBar>
 
-      <Stack direction="row" flexGrow={1} minHeight={0}>
+      <Box display="flex" flex={1} overflow="hidden">
         {/* Left app nav */}
-        <Paper square>
-          <List>
-            <ListItemButton
-              selected={activeKey === "dashboard"}
-              onClick={() => openTab("dashboard")}
-            >
-              <ListItemIcon>
-                <HomeIcon />
-              </ListItemIcon>
-              {!isDetailTab && <ListItemText primary="Dashboard" />}
-            </ListItemButton>
-
-            <ListItemButton
-              selected={activeKey === "adressen"}
-              onClick={() => openTab("adressen")}
-            >
-              <ListItemIcon>
-                <PeopleIcon />
-              </ListItemIcon>
-              {!isDetailTab && <ListItemText primary="Adressen" />}
-            </ListItemButton>
-
-            <ListItemButton
-              selected={activeKey === "schaeden"}
-              onClick={() => openTab("schaeden")}
-            >
-              <ListItemIcon>
-                <WhatshotIcon />
-              </ListItemIcon>
-              {!isDetailTab && <ListItemText primary="Schäden" />}
-            </ListItemButton>
-          </List>
-        </Paper>
+        {!isDetailTab && (
+          <Paper
+            elevation={0}
+            sx={{
+              width: 200,
+              borderRight: 1,
+              borderColor: "divider",
+              overflow: "auto",
+            }}
+          >
+            <List>
+              <ListItemButton onClick={() => openTab("dashboard")}>
+                <ListItemIcon>
+                  <HomeIcon />
+                </ListItemIcon>
+                <ListItemText primary="Startseite" />
+              </ListItemButton>
+              <ListItemButton onClick={() => openTab("adressen")}>
+                <ListItemIcon>
+                  <PeopleIcon />
+                </ListItemIcon>
+                <ListItemText primary="Adressen" />
+              </ListItemButton>
+              <ListItemButton onClick={() => openTab("schaeden")}>
+                <ListItemIcon>
+                  <WhatshotIcon />
+                </ListItemIcon>
+                <ListItemText primary="Schäden" />
+              </ListItemButton>
+            </List>
+          </Paper>
+        )}
 
         {/* Active tab content */}
-        <Box flexGrow={1} minWidth={0} minHeight={0} display="flex">
+        <Box 
+          flex={1} 
+          overflow="auto"
+          sx={{ 
+            bgcolor: 'background.default',
+            minHeight: '100%'
+          }}
+        >
           {tabs.map((t, idx) =>
             idx === activeIndex ? (
-              <Box key={t.key} flexGrow={1}>
+              <Box key={t.key} sx={{ minHeight: '100%' }}>
                 {t.element}
               </Box>
             ) : null
           )}
         </Box>
-      </Stack>
+      </Box>
     </Box>
   );
 }

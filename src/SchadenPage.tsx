@@ -1,7 +1,6 @@
 import { useState } from "react";
 import {
   Box,
-  Container,
   Paper,
   Typography,
   Button,
@@ -17,7 +16,6 @@ import {
   Menu,
   MenuItem,
   Grid,
-  Divider,
 } from "@mui/material";
 import {
   Home as HomeIcon,
@@ -68,32 +66,34 @@ export default function SchadenPage({ onOpenClaim }: SchadenPageProps) {
     notizen: "",
   });
 
-  const navigateToHome = () => console.log("Navigate to home");
+  const navigateToHome = () => {
+    window.location.href = '/dashboard';
+  };
 
   const rows: SchadenRow[] = [
     { id: 1, adrKey: "ADR001234", ownType: "Individual", evtTyp: "Update", evtKey: "EVT7891", memberKey: "MBR45678", member: "John Smith", adrKeyMain: "ADR001234", adrKeyNew: "ADR001235", alternateKey: "ALT789123", proKey: "PRO456789", aDate: "2024-01-15", origin: "Web", class: "Premium", status: "Active", statusDate: "2024-01-15" },
-    { id: 2, adrKey: "ADR002345", ownType: "Company",    evtTyp: "Create", evtKey: "EVT7892", memberKey: "MBR45679", member: "Jane Doe",   adrKeyMain: "ADR002345", adrKeyNew: "ADR002346", alternateKey: "ALT789124", proKey: "PRO456790", aDate: "2024-01-16", origin: "Import", class: "Standard", status: "Pending", statusDate: "2024-01-16" },
+    { id: 2, adrKey: "ADR002345", ownType: "Company", evtTyp: "Create", evtKey: "EVT7892", memberKey: "MBR45679", member: "Jane Doe", adrKeyMain: "ADR002345", adrKeyNew: "ADR002346", alternateKey: "ALT789124", proKey: "PRO456790", aDate: "2024-01-16", origin: "Import", class: "Standard", status: "Pending", statusDate: "2024-01-16" },
     { id: 3, adrKey: "ADR003456", ownType: "Partnership", evtTyp: "Delete", evtKey: "EVT7893", memberKey: "MBR45680", member: "Bob Johnson", adrKeyMain: "ADR003456", adrKeyNew: "ADR003457", alternateKey: "ALT789125", proKey: "PRO456791", aDate: "2024-01-17", origin: "Manual", class: "Basic", status: "Inactive", statusDate: "2024-01-17" },
-    { id: 4, adrKey: "ADR004567", ownType: "Individual",  evtTyp: "Update", evtKey: "EVT7894", memberKey: "MBR45681", member: "Sarah Wilson", adrKeyMain: "ADR004567", adrKeyNew: "ADR004568", alternateKey: "ALT789126", proKey: "PRO456792", aDate: "2024-01-18", origin: "API", class: "Premium", status: "Active", statusDate: "2024-01-18" },
-    { id: 5, adrKey: "ADR005678", ownType: "Company",     evtTyp: "Create", evtKey: "EVT7895", memberKey: "MBR45682", member: "Mike Brown",  adrKeyMain: "ADR005678", adrKeyNew: "ADR005679", alternateKey: "ALT789127", proKey: "PRO456793", aDate: "2024-01-19", origin: "Batch", class: "Enterprise", status: "Active", statusDate: "2024-01-19" },
+    { id: 4, adrKey: "ADR004567", ownType: "Individual", evtTyp: "Update", evtKey: "EVT7894", memberKey: "MBR45681", member: "Sarah Wilson", adrKeyMain: "ADR004567", adrKeyNew: "ADR004568", alternateKey: "ALT789126", proKey: "PRO456792", aDate: "2024-01-18", origin: "API", class: "Premium", status: "Active", statusDate: "2024-01-18" },
+    { id: 5, adrKey: "ADR005678", ownType: "Company", evtTyp: "Create", evtKey: "EVT7895", memberKey: "MBR45682", member: "Mike Brown", adrKeyMain: "ADR005678", adrKeyNew: "ADR005679", alternateKey: "ALT789127", proKey: "PRO456793", aDate: "2024-01-19", origin: "Batch", class: "Enterprise", status: "Active", statusDate: "2024-01-19" },
   ];
 
   const columns = [
-    { field: "adrKey", headerName: "AdrKey", width: 110 },
-    { field: "ownType", headerName: "OwnType", width: 110 },
-    { field: "evtTyp", headerName: "EvtTyp", width: 90 },
-    { field: "evtKey", headerName: "EvtKey", width: 110 },
-    { field: "memberKey", headerName: "MemberKey", width: 120 },
-    { field: "member", headerName: "Member", width: 140 },
-    { field: "adrKeyMain", headerName: "AdrKeyMain", width: 120 },
-    { field: "adrKeyNew", headerName: "AdrKeyNew", width: 120 },
-    { field: "alternateKey", headerName: "AlternateKey", width: 130 },
-    { field: "proKey", headerName: "ProKey", width: 120 },
-    { field: "aDate", headerName: "ADate", width: 110 },
-    { field: "origin", headerName: "Origin", width: 90 },
-    { field: "class", headerName: "Class", width: 110 },
-    { field: "status", headerName: "Status", width: 100 },
-    { field: "statusDate", headerName: "StatusDate", width: 120 },
+    { field: "adrKey", headerName: "AdrKey", minWidth: 110, flex: 1 },
+    { field: "ownType", headerName: "OwnType", minWidth: 110, flex: 1 },
+    { field: "evtTyp", headerName: "EvtTyp", minWidth: 90, flex: 1 },
+    { field: "evtKey", headerName: "EvtKey", minWidth: 110, flex: 1 },
+    { field: "memberKey", headerName: "MemberKey", minWidth: 120, flex: 1 },
+    { field: "member", headerName: "Member", minWidth: 140, flex: 1 },
+    { field: "adrKeyMain", headerName: "AdrKeyMain", minWidth: 120, flex: 1 },
+    { field: "adrKeyNew", headerName: "AdrKeyNew", minWidth: 120, flex: 1 },
+    { field: "alternateKey", headerName: "AlternateKey", minWidth: 130, flex: 1 },
+    { field: "proKey", headerName: "ProKey", minWidth: 120, flex: 1 },
+    { field: "aDate", headerName: "ADate", minWidth: 110, flex: 1 },
+    { field: "origin", headerName: "Origin", minWidth: 90, flex: 1 },
+    { field: "class", headerName: "Class", minWidth: 110, flex: 1 },
+    { field: "status", headerName: "Status", minWidth: 100, flex: 1 },
+    { field: "statusDate", headerName: "StatusDate", minWidth: 120, flex: 1 },
   ];
 
   const handleInputChange = (field: string, value: string) =>
@@ -127,79 +127,91 @@ export default function SchadenPage({ onOpenClaim }: SchadenPageProps) {
   return (
     <>
       <CssBaseline />
-      <Container maxWidth="lg" component="main">
-        <Box>
+      <Box component="main" minHeight="100vh" display="flex" flexDirection="column">
+        <Box px={3} pt={2} pb={1}>
           <Breadcrumbs aria-label="breadcrumb">
-            <Link component="button" variant="body2" onClick={navigateToHome} underline="hover">
-              <Stack direction="row" alignItems="center" spacing={1}>
-                <HomeIcon fontSize="small" />
-                <span>Dashboard</span>
-              </Stack>
+            <Link
+              component="button"
+              variant="body2"
+              onClick={navigateToHome}
+              underline="hover"
+              display="flex"
+              alignItems="center"
+              gap={1}
+            >
+              <HomeIcon fontSize="small" />
+              Dashboard
             </Link>
-
             <Stack direction="row" alignItems="center" spacing={1}>
               <FireIcon fontSize="small" />
-              <Typography variant="body2" color="text.primary">
-                Schäden
-              </Typography>
+              <Typography variant="body2">Schäden</Typography>
             </Stack>
           </Breadcrumbs>
         </Box>
 
-        <Grid container alignItems="center" justifyContent="space-between">
-          <Grid item>
+        <Box px={3} pb={2}>
+          <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
             <Stack direction="row" alignItems="center" spacing={2}>
-              <FireIcon color="primary" />
+              <FireIcon fontSize="large" />
               <Box>
-                <Typography variant="h4" component="h1">
+                <Typography variant="h4" component="h1" fontWeight="bold">
                   Schäden
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant="body2">
                   Schadenfälle und Vorfälle verwalten
                 </Typography>
               </Box>
             </Stack>
-          </Grid>
-          <Grid item>
-            <Button variant="contained" onClick={() => setIsCreateDialogOpen(true)} startIcon={<AddIcon />}>
+            <Button
+              variant="contained"
+              onClick={() => setIsCreateDialogOpen(true)}
+              startIcon={<AddIcon />}
+              size="large"
+            >
               Neuer Schadensfall
             </Button>
-          </Grid>
-        </Grid>
-
-        <Stack spacing={1}>
-          <Stack direction="row" alignItems="center" spacing={1}>
-            <AddIcon fontSize="small" />
-            <Typography variant="body2">
-              Schnellaktion verfügbar: Neuen Schadensfall erstellen
-            </Typography>
           </Stack>
-          <Divider />
-        </Stack>
+          <Stack direction="row" alignItems="center" spacing={1} mb={2}>
+            <AddIcon fontSize="small" />
+            <Typography variant="body2">Schnellaktion verfügbar: Neuen Schadensfall erstellen</Typography>
+            <Typography variant="caption" ml="auto">Klicken Sie auf "Neuer Schadensfall" um loszulegen</Typography>
+          </Stack>
+        </Box>
 
-        <Paper elevation={1}>
-            <DataGrid
-            rows={rows}
-            columns={columns}
-            autoHeight
-            initialState={{ pagination: { paginationModel: { page: 0, pageSize: 10 } } }}
-            pageSizeOptions={[5, 10, 25, 50]}
-            checkboxSelection
-            disableRowSelectionOnClick
-            onRowClick={(p: GridRowParams) => onOpenClaim?.(p.row as SchadenRow)}
-            slots={{ toolbar: GridToolbar }}
-            slotProps={{
-                toolbar: { showQuickFilter: true, quickFilterProps: { debounceMs: 500 } },
-            }}
-            />
-
-        </Paper>
-      </Container>
+        {/* FIXED: Full width like AddressPage */}
+        <Box flex={1} px={3} pb={3} sx={{ minWidth: 0 }}>
+          <Paper sx={{ width: "100%", overflow: "auto" }}>
+            <Box sx={{
+              width: "100%",
+              minWidth: 950,
+              maxWidth: "100vw",
+              height: 520,
+              overflowX: "auto"
+            }}>
+              <DataGrid
+                rows={rows}
+                columns={columns}
+                initialState={{
+                  pagination: { paginationModel: { page: 0, pageSize: 10 } },
+                }}
+                pageSizeOptions={[5, 10, 25, 50]}
+                checkboxSelection
+                disableRowSelectionOnClick={false}
+                onRowClick={(p: GridRowParams) => onOpenClaim?.(p.row as SchadenRow)}
+                slots={{ toolbar: GridToolbar }}
+                slotProps={{
+                  toolbar: { showQuickFilter: true, quickFilterProps: { debounceMs: 500 } },
+                }}
+              />
+            </Box>
+          </Paper>
+        </Box>
+      </Box>
 
       <Dialog open={isCreateDialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
         <DialogTitle>
           <Stack direction="row" justifyContent="space-between" alignItems="center">
-            <Typography variant="h6">Neuen Schadensfall erstellen</Typography>
+            <Typography variant="h6" fontWeight="bold">Neuen Schadensfall erstellen</Typography>
             <IconButton onClick={handleCloseDialog} size="small">
               <CloseIcon />
             </IconButton>
@@ -207,14 +219,14 @@ export default function SchadenPage({ onOpenClaim }: SchadenPageProps) {
         </DialogTitle>
 
         <DialogContent>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" color="text.secondary" paragraph>
             Erfassen Sie einen neuen Schadenfall mit den wichtigsten Angaben.
           </Typography>
 
           <Stack spacing={3}>
             <Box>
-              <Typography variant="subtitle2">Schadenstyp *</Typography>
-              <Button fullWidth variant="outlined" onClick={handleMenuOpen} endIcon={<KeyboardArrowDownIcon />} color="inherit">
+              <Typography variant="subtitle2" gutterBottom>Schadenstyp *</Typography>
+              <Button fullWidth variant="outlined" onClick={handleMenuOpen} endIcon={<KeyboardArrowDownIcon />}>
                 {!claimType
                   ? "Typ auswählen…"
                   : claimType === "wasser"
@@ -329,8 +341,8 @@ export default function SchadenPage({ onOpenClaim }: SchadenPageProps) {
               </Stack>
             )}
 
-            <Stack direction="row" justifyContent="flex-end" spacing={2}>
-              <Button variant="outlined" onClick={handleCloseDialog} color="inherit">
+            <Stack direction="row" justifyContent="flex-end" spacing={2} mt={4} pt={2}>
+              <Button variant="outlined" onClick={handleCloseDialog}>
                 Abbrechen
               </Button>
               <Button variant="contained" onClick={handleSubmit} disabled={!claimType || !formData.schadennummer}>
