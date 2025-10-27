@@ -14,6 +14,8 @@ import {
   Tooltip,
   Typography,
   ButtonGroup,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 
@@ -90,7 +92,13 @@ function QuickViewsBar({
   );
 }
 
-export default function DashboardLite() {
+export default function DashboardLite({
+  user,
+  onSwitchUser,
+}: {
+  user: { id: "max" | "anna"; name: string; avatar: string };
+  onSwitchUser: (id: "max" | "anna") => void;
+}) {
   const [activeView, setActiveView] = useState<ViewKey>("aktuell");
   const activePredicate = DASHBOARD_VIEWS.find((v) => v.key === activeView)?.predicate ?? (() => true);
   const filteredRows = useMemo(() => rows.filter(activePredicate), [activePredicate]);
@@ -100,13 +108,22 @@ export default function DashboardLite() {
       <AppBar position="static" color="transparent" elevation={0}>
         <Toolbar>
           <Typography variant="h6">Dashboard</Typography>
-          <Box className="flex-grow" />
-          <Button variant="contained" startIcon={<AddLocationAltIcon />}>
-            Neue Adresse
-          </Button>
-          <Avatar className="ml-16">MM</Avatar>
-          <Typography variant="body2" className="ml-8">
-            Max Mustermann
+          <Box sx={{ flexGrow: 1 }} />
+
+          {/* User dropdown inside Dashboard */}
+          <Select
+            size="small"
+            value={user.id}
+            onChange={(e) => onSwitchUser(e.target.value as "max" | "anna")}
+            sx={{ mr: 2, minWidth: 150 }}
+          >
+            <MenuItem value="max">Max Mustermann</MenuItem>
+            <MenuItem value="anna">Anna Admin</MenuItem>
+          </Select>
+
+          <Avatar sx={{ ml: 1 }}>{user.avatar}</Avatar>
+          <Typography variant="body2" sx={{ ml: 1 }}>
+            {user.name}
           </Typography>
         </Toolbar>
       </AppBar>
