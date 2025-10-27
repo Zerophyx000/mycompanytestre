@@ -3,23 +3,22 @@ import {
   AppBar,
   Avatar,
   Box,
-  Button,
   Card,
   CardContent,
   Divider,
   Grid,
   IconButton,
+  MenuItem,
   Paper,
+  Select,
   Toolbar,
   Tooltip,
   Typography,
   ButtonGroup,
-  Select,
-  MenuItem,
+  Button,
 } from "@mui/material";
-import { DataGrid, type GridColDef } from "@mui/x-data-grid";
+import { DataGrid } from "@mui/x-data-grid";
 
-import AddLocationAltIcon from "@mui/icons-material/AddLocationAlt";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import WorkHistoryIcon from "@mui/icons-material/WorkHistory";
@@ -31,86 +30,35 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import DownloadIcon from "@mui/icons-material/Download";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
-import "./DashboardLite.css";
+import { SCHADEN_VIEWS, type SchadenRow, type SchadenViewKey } from "./SchadenPage";
 
-type Row = { id: number; name: string; status: "Active" | "Pending" | "Inactive" };
-
-const rows: Row[] = [
-  { id: 1, name: "John Smith", status: "Active" },
-  { id: 2, name: "Jane Doe", status: "Pending" },
-  { id: 3, name: "Mike Brown", status: "Inactive" },
-];
-
-const columns: GridColDef<Row>[] = [
-  { field: "id", headerName: "ID", width: 100 },
-  { field: "name", headerName: "Name", width: 220 },
-  { field: "status", headerName: "Status", width: 160 },
-];
-
-type ViewKey =
-  | "aktuell"
-  | "naechste"
-  | "alle"
-  | "uebergeben"
-  | "meineAuftraege"
-  | "meineProjekte"
-  | "zuVisieren"
-  | "meineVerdankungen";
-
-const DASHBOARD_VIEWS: { key: ViewKey; label: string; predicate: (r: Row) => boolean }[] = [
-  { key: "aktuell", label: "Aktuell", predicate: (r) => r.status === "Active" },
-  { key: "naechste", label: "Nächste", predicate: (r) => r.status === "Pending" },
-  { key: "alle", label: "Alle", predicate: () => true },
-  { key: "uebergeben", label: "Übergeben", predicate: () => true },
-  { key: "meineAuftraege", label: "Meine Aufträge", predicate: () => true },
-  { key: "meineProjekte", label: "Meine Projekte", predicate: () => true },
-  { key: "zuVisieren", label: "Zu Visieren", predicate: () => true },
-  { key: "meineVerdankungen", label: "Meine Verdankungen", predicate: () => true },
-];
-
-function QuickViewsBar({
-  active,
-  onChange,
-}: {
-  active: ViewKey;
-  onChange: (k: ViewKey) => void;
-}) {
-  return (
-    <Box sx={{ p: 1 }}>
-      <ButtonGroup size="small" variant="outlined" sx={{ flexWrap: "wrap", gap: 1 }}>
-        {DASHBOARD_VIEWS.map((v) => (
-          <Button
-            key={v.key}
-            variant={active === v.key ? "contained" : "outlined"}
-            onClick={() => onChange(v.key)}
-          >
-            {v.label}
-          </Button>
-        ))}
-      </ButtonGroup>
-    </Box>
-  );
-}
+type User = { id: "max" | "anna"; name: string; avatar: string };
 
 export default function DashboardLite({
   user,
   onSwitchUser,
+  recentSchadens,
 }: {
-  user: { id: "max" | "anna"; name: string; avatar: string };
+  user: User;
   onSwitchUser: (id: "max" | "anna") => void;
+  recentSchadens: SchadenRow[];
 }) {
-  const [activeView, setActiveView] = useState<ViewKey>("aktuell");
-  const activePredicate = DASHBOARD_VIEWS.find((v) => v.key === activeView)?.predicate ?? (() => true);
-  const filteredRows = useMemo(() => rows.filter(activePredicate), [activePredicate]);
+  const [activeView, setActiveView] = useState<SchadenViewKey>("alle");
+
+  const predicate =
+    SCHADEN_VIEWS.find((v) => v.key === activeView)?.predicate ?? (() => true);
+  const filteredRows = useMemo(
+    () => recentSchadens.filter(predicate),
+    [recentSchadens, predicate]
+  );
 
   return (
-    <Box className="dashboard-root">
+    <Box>
       <AppBar position="static" color="transparent" elevation={0}>
         <Toolbar>
           <Typography variant="h6">Dashboard</Typography>
           <Box sx={{ flexGrow: 1 }} />
 
-          {/* User dropdown inside Dashboard */}
           <Select
             size="small"
             value={user.id}
@@ -128,45 +76,31 @@ export default function DashboardLite({
         </Toolbar>
       </AppBar>
 
-      <Box className="dashboard-content">
-        <Typography variant="subtitle2" color="textSecondary" className="mt-16">
+      <Box sx={{ p: 2 }}>
+        <Typography variant="subtitle2" color="textSecondary">
           Sachschaden • Schadensachbearbeiter
         </Typography>
-        <Typography variant="h6" className="mt-8 mb-24">
+        <Typography variant="h6" sx={{ mt: 1, mb: 2 }}>
           Mein Dashboard
         </Typography>
 
         <Card>
           <CardContent>
             <Typography variant="subtitle1">Übersicht</Typography>
-            <Typography variant="body2" color="textSecondary">
-              Wichtige Kennzahlen auf einen Blick
-            </Typography>
-
-            <Grid container spacing={2} columns={5} className="mt-8">
-              <Grid xs={5} sm={5} md={5} lg={1}>
-                <OverviewCard icon={<InfoOutlinedIcon />} label="Offene Fälle" value="—" />
-              </Grid>
-              <Grid xs={5} sm={5} md={5} lg={1}>
-                <OverviewCard icon={<ScheduleIcon />} label="Anstehende Fälle" value="—" />
-              </Grid>
-              <Grid xs={5} sm={5} md={5} lg={1}>
-                <OverviewCard icon={<WorkHistoryIcon />} label="In Bearbeitung" value="—" />
-              </Grid>
-              <Grid xs={5} sm={5} md={5} lg={1}>
-                <OverviewCard icon={<CheckCircleOutlineIcon />} label="Abgeschlossen" value="—" />
-              </Grid>
-              <Grid xs={5} sm={5} md={5} lg={1}>
-                <OverviewCard icon={<AllInboxIcon />} label="Gesamt Fälle" value="—" />
-              </Grid>
+            <Grid container spacing={2} columns={5} sx={{ mt: 1 }}>
+              <Grid xs={5} lg={1}><OverviewCard icon={<InfoOutlinedIcon />} label="Offene Fälle" value="—" /></Grid>
+              <Grid xs={5} lg={1}><OverviewCard icon={<ScheduleIcon />} label="Anstehende Fälle" value="—" /></Grid>
+              <Grid xs={5} lg={1}><OverviewCard icon={<WorkHistoryIcon />} label="In Bearbeitung" value="—" /></Grid>
+              <Grid xs={5} lg={1}><OverviewCard icon={<CheckCircleOutlineIcon />} label="Abgeschlossen" value="—" /></Grid>
+              <Grid xs={5} lg={1}><OverviewCard icon={<AllInboxIcon />} label="Gesamt Fälle" value="—" /></Grid>
             </Grid>
           </CardContent>
         </Card>
 
-        <Paper elevation={0} className="mt-24 table-wrapper">
+        <Paper elevation={0} sx={{ mt: 3 }}>
           <Toolbar>
-            <Typography variant="subtitle1" className="flex-grow">
-              Fälle
+            <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
+              Letzte Schäden
             </Typography>
             <Tooltip title="Spalten"><IconButton><ViewColumnIcon /></IconButton></Tooltip>
             <Tooltip title="Filtern"><IconButton><FilterListIcon /></IconButton></Tooltip>
@@ -180,13 +114,43 @@ export default function DashboardLite({
           <Divider />
           <DataGrid
             rows={filteredRows}
-            columns={columns}
-            pageSizeOptions={[5]}
-            disableRowSelectionOnClick
+            columns={[
+              { field: "id", headerName: "ID", width: 70 },
+              { field: "adrKey", headerName: "AdrKey", width: 140 },
+              { field: "member", headerName: "Mitglied", width: 160 },
+              { field: "status", headerName: "Status", width: 120 },
+              { field: "origin", headerName: "Quelle", width: 120 },
+            ]}
             autoHeight
+            hideFooterPagination
+            disableRowSelectionOnClick
           />
         </Paper>
       </Box>
+    </Box>
+  );
+}
+
+function QuickViewsBar({
+  active,
+  onChange,
+}: {
+  active: SchadenViewKey;
+  onChange: (k: SchadenViewKey) => void;
+}) {
+  return (
+    <Box sx={{ p: 1 }}>
+      <ButtonGroup size="small" variant="outlined" sx={{ flexWrap: "wrap", gap: 1 }}>
+        {SCHADEN_VIEWS.map((v) => (
+          <Button
+            key={v.key}
+            variant={active === v.key ? "contained" : "outlined"}
+            onClick={() => onChange(v.key)}
+          >
+            {v.label}
+          </Button>
+        ))}
+      </ButtonGroup>
     </Box>
   );
 }
@@ -203,9 +167,9 @@ function OverviewCard({
   return (
     <Card variant="outlined">
       <CardContent>
-        <Box className="overview-card">
+        <Box display="flex" alignItems="center">
           <Avatar variant="rounded">{icon}</Avatar>
-          <Box className="ml-16">
+          <Box sx={{ ml: 2 }}>
             <Typography variant="overline" color="textSecondary">
               {label}
             </Typography>
