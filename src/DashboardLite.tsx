@@ -1,11 +1,9 @@
 import React, { useMemo, useState } from "react";
 import {
-  AppBar,
   Avatar,
   Box,
   Card,
   CardContent,
-  Divider,
   Grid,
   IconButton,
   MenuItem,
@@ -73,7 +71,7 @@ export default function DashboardLite({
           <Avatar sx={{ ml: 1 }}>{user.avatar}</Avatar>
           <Typography variant="body2" sx={{ ml: 1 }}>{user.name}</Typography>
         </Toolbar>
-      </AppBar>
+      </Paper>
 
       <Box sx={{ p: 2 }}>
         <Typography variant="subtitle2" color="text.secondary">Sachschaden • Schadensachbearbeiter</Typography>
@@ -134,7 +132,7 @@ export default function DashboardLite({
 
 function OverviewCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <Card variant="outlined">
+    <Card>
       <CardContent>
         <Box display="flex" alignItems="center">
           <Avatar variant="rounded">{icon}</Avatar>
@@ -143,6 +141,12 @@ function OverviewCard({ icon, label, value }: { icon: React.ReactNode; label: st
             <Typography variant="h6">{value}</Typography>
           </Box>
         </Box>
+        <Typography variant="body2" color="text.secondary" gutterBottom>
+          {label}
+        </Typography>
+        <Typography variant="h5" fontWeight="bold">
+          {value}
+        </Typography>
       </CardContent>
     </Card>
   );

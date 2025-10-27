@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import * as React from "react";
 import {
   Box, Breadcrumbs, CssBaseline, Divider, List, ListItemButton,
@@ -16,8 +17,6 @@ import { NotesContext, type NoteItem, type NewNoteInput } from "./NotesContext";
 import DocumentDialog from "./DocumentDialog";
 import DocumentsTab from "./DocumentsTab";
 import { DocumentsContext, type DocumentItem } from "./DocumentsContext";
-
-import "./SchadenTabs.css";
 
 export const ClaimContext = React.createContext<SchadenRow | null>(null);
 export const useClaim = () => React.useContext(ClaimContext);

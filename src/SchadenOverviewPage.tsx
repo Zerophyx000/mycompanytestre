@@ -22,8 +22,6 @@ import { useDocuments } from "./DocumentsContext";
 import { useClaim } from "./SchadenTabs";
 import { useNotes } from "./NotesContext";
 
-import "./SchadenOverviewPage.css";
-
 export default function SchadenOverviewPage() {
   const claim = useClaim();
   const notes = useNotes();

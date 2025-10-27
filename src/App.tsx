@@ -13,7 +13,6 @@ import {
   Tab,
   Tabs,
   Toolbar,
-  Tooltip,
   Typography,
   Button,
 } from "@mui/material";
@@ -25,7 +24,6 @@ import SearchIcon from "@mui/icons-material/Search";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import CloseIcon from "@mui/icons-material/Close";
-
 import DashboardLite from "./DashboardLite";
 import AdressePage from "./AddressPage3";
 import SchadenPage, { type SchadenRow, SCHADEN_ROWS } from "./SchadenPage";
@@ -143,8 +141,9 @@ export default function App() {
   const isDetailTab = activeKey.startsWith("claim:") || activeKey.startsWith("address:");
 
   return (
-    <Box display="flex" flexDirection="column" minHeight="100vh">
-      <AppBar position="static" color="transparent" elevation={0}>
+    <Box display="flex" flexDirection="column" height="100vh" width="100vw" overflow="hidden">
+      {/* Top bar */}
+      <AppBar position="static" elevation={0}>
         <Toolbar>
           <Avatar sx={{ mr: 1 }}>{user.avatar}</Avatar>
           <Typography>{user.name}</Typography>
@@ -154,14 +153,12 @@ export default function App() {
           <Tooltip title="Benachrichtigungen"><IconButton size="small"><NotificationsNoneIcon /></IconButton></Tooltip>
           <Button variant="contained" size="small">Aktion</Button>
         </Toolbar>
-      </AppBar>
-
-      <Paper square>
         <Tabs
           value={activeIndex}
           onChange={(_, idx) => setActiveKey(tabs[idx].key)}
           variant="scrollable"
           scrollButtons="auto"
+          sx={{ bgcolor: "background.paper", px: 2 }}
         >
           {tabs.map((t) => (
             <Tab
@@ -182,7 +179,7 @@ export default function App() {
             />
           ))}
         </Tabs>
-      </Paper>
+      </AppBar>
 
       <Stack direction="row" flexGrow={1} minHeight={0}>
         <Paper square>
@@ -224,7 +221,7 @@ export default function App() {
             ) : null
           )}
         </Box>
-      </Stack>
+      </Box>
     </Box>
   );
 }
