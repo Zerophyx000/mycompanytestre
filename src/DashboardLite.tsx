@@ -10,8 +10,10 @@ import {
   Paper,
   Select,
   Toolbar,
+  AppBar,
   Tooltip,
   Typography,
+  Divider,
   ButtonGroup,
   Button,
 } from "@mui/material";
@@ -71,7 +73,7 @@ export default function DashboardLite({
           <Avatar sx={{ ml: 1 }}>{user.avatar}</Avatar>
           <Typography variant="body2" sx={{ ml: 1 }}>{user.name}</Typography>
         </Toolbar>
-      </Paper>
+      </AppBar>
 
       <Box sx={{ p: 2 }}>
         <Typography variant="subtitle2" color="text.secondary">Sachschaden • Schadensachbearbeiter</Typography>

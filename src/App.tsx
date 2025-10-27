@@ -13,6 +13,7 @@ import {
   Tab,
   Tabs,
   Toolbar,
+  Tooltip,
   Typography,
   Button,
 } from "@mui/material";
@@ -25,7 +26,7 @@ import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import CloseIcon from "@mui/icons-material/Close";
 import DashboardLite from "./DashboardLite";
-import AdressePage from "./AddressPage3";
+import AdressePage from "./AddressPage";
 import SchadenPage, { type SchadenRow, SCHADEN_ROWS } from "./SchadenPage";
 import SchadenTabs from "./SchadenTabs";
 import { AddressDetailLayout } from "./AddressDetailLayout 2";
@@ -221,7 +222,7 @@ export default function App() {
             ) : null
           )}
         </Box>
-      </Box>
+      </Stack>
     </Box>
   );
 }

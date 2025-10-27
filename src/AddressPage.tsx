@@ -146,7 +146,7 @@ type Props = {
   onOpenAddress?: (adrKey: string) => void;
 };
 
-export function AddressPage({ onOpenAddress }: Props) {
+export default function AddressPage({ onOpenAddress }: Props) {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
