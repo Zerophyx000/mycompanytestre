@@ -17,8 +17,7 @@ import {
   ButtonGroup,
   Button,
 } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
-
+import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import WorkHistoryIcon from "@mui/icons-material/WorkHistory";
@@ -29,28 +28,32 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import DownloadIcon from "@mui/icons-material/Download";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-
-import { SCHADEN_VIEWS, type SchadenRow, type SchadenViewKey } from "./SchadenPage";
+import { type SchadenRow, type SchadenViewKey, SCHADEN_VIEWS } from "./SchadenPage";
 
 type User = { id: "max" | "anna"; name: string; avatar: string };
+
+const columns: GridColDef<SchadenRow>[] = [
+  { field: "id", headerName: "ID", width: 70 },
+  { field: "adrKey", headerName: "AdrKey", width: 140 },
+  { field: "member", headerName: "Mitglied", width: 160 },
+  { field: "status", headerName: "Status", width: 120 },
+  { field: "origin", headerName: "Quelle", width: 120 },
+];
 
 export default function DashboardLite({
   user,
   onSwitchUser,
   recentSchadens,
+  onOpenClaim,
 }: {
   user: User;
   onSwitchUser: (id: "max" | "anna") => void;
   recentSchadens: SchadenRow[];
+  onOpenClaim: (row: SchadenRow) => void;
 }) {
   const [activeView, setActiveView] = useState<SchadenViewKey>("alle");
-
-  const predicate =
-    SCHADEN_VIEWS.find((v) => v.key === activeView)?.predicate ?? (() => true);
-  const filteredRows = useMemo(
-    () => recentSchadens.filter(predicate),
-    [recentSchadens, predicate]
-  );
+  const predicate = SCHADEN_VIEWS.find((v) => v.key === activeView)?.predicate ?? (() => true);
+  const filteredRows = useMemo(() => recentSchadens.filter(predicate), [recentSchadens, activeView]);
 
   return (
     <Box>
@@ -58,7 +61,6 @@ export default function DashboardLite({
         <Toolbar>
           <Typography variant="h6">Dashboard</Typography>
           <Box sx={{ flexGrow: 1 }} />
-
           <Select
             size="small"
             value={user.id}
@@ -68,21 +70,14 @@ export default function DashboardLite({
             <MenuItem value="max">Max Mustermann</MenuItem>
             <MenuItem value="anna">Anna Admin</MenuItem>
           </Select>
-
           <Avatar sx={{ ml: 1 }}>{user.avatar}</Avatar>
-          <Typography variant="body2" sx={{ ml: 1 }}>
-            {user.name}
-          </Typography>
+          <Typography variant="body2" sx={{ ml: 1 }}>{user.name}</Typography>
         </Toolbar>
       </AppBar>
 
       <Box sx={{ p: 2 }}>
-        <Typography variant="subtitle2" color="textSecondary">
-          Sachschaden • Schadensachbearbeiter
-        </Typography>
-        <Typography variant="h6" sx={{ mt: 1, mb: 2 }}>
-          Mein Dashboard
-        </Typography>
+        <Typography variant="subtitle2" color="text.secondary">Sachschaden • Schadensachbearbeiter</Typography>
+        <Typography variant="h6" sx={{ mt: 1, mb: 2 }}>Mein Dashboard</Typography>
 
         <Card>
           <CardContent>
@@ -99,9 +94,7 @@ export default function DashboardLite({
 
         <Paper elevation={0} sx={{ mt: 3 }}>
           <Toolbar>
-            <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
-              Letzte Schäden
-            </Typography>
+            <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>Letzte Schäden</Typography>
             <Tooltip title="Spalten"><IconButton><ViewColumnIcon /></IconButton></Tooltip>
             <Tooltip title="Filtern"><IconButton><FilterListIcon /></IconButton></Tooltip>
             <Tooltip title="Aktualisieren"><IconButton><RefreshIcon /></IconButton></Tooltip>
@@ -109,21 +102,29 @@ export default function DashboardLite({
             <Tooltip title="Mehr"><IconButton><MoreVertIcon /></IconButton></Tooltip>
           </Toolbar>
 
-          <QuickViewsBar active={activeView} onChange={setActiveView} />
+          <Box sx={{ p: 1 }}>
+            <ButtonGroup size="small" variant="outlined" sx={{ flexWrap: "wrap", gap: 1 }}>
+              {SCHADEN_VIEWS.map((v) => (
+                <Button
+                  key={v.key}
+                  variant={activeView === v.key ? "contained" : "outlined"}
+                  onClick={() => setActiveView(v.key)}
+                >
+                  {v.label}
+                </Button>
+              ))}
+            </ButtonGroup>
+          </Box>
 
           <Divider />
           <DataGrid
             rows={filteredRows}
-            columns={[
-              { field: "id", headerName: "ID", width: 70 },
-              { field: "adrKey", headerName: "AdrKey", width: 140 },
-              { field: "member", headerName: "Mitglied", width: 160 },
-              { field: "status", headerName: "Status", width: 120 },
-              { field: "origin", headerName: "Quelle", width: 120 },
-            ]}
+            columns={columns}
             autoHeight
             hideFooterPagination
             disableRowSelectionOnClick
+            onRowClick={(params) => onOpenClaim(params.row)}
+            getRowId={(r) => r.id}
           />
         </Paper>
       </Box>
@@ -131,48 +132,14 @@ export default function DashboardLite({
   );
 }
 
-function QuickViewsBar({
-  active,
-  onChange,
-}: {
-  active: SchadenViewKey;
-  onChange: (k: SchadenViewKey) => void;
-}) {
-  return (
-    <Box sx={{ p: 1 }}>
-      <ButtonGroup size="small" variant="outlined" sx={{ flexWrap: "wrap", gap: 1 }}>
-        {SCHADEN_VIEWS.map((v) => (
-          <Button
-            key={v.key}
-            variant={active === v.key ? "contained" : "outlined"}
-            onClick={() => onChange(v.key)}
-          >
-            {v.label}
-          </Button>
-        ))}
-      </ButtonGroup>
-    </Box>
-  );
-}
-
-function OverviewCard({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-}) {
+function OverviewCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <Card variant="outlined">
       <CardContent>
         <Box display="flex" alignItems="center">
           <Avatar variant="rounded">{icon}</Avatar>
           <Box sx={{ ml: 2 }}>
-            <Typography variant="overline" color="textSecondary">
-              {label}
-            </Typography>
+            <Typography variant="overline" color="text.secondary">{label}</Typography>
             <Typography variant="h6">{value}</Typography>
           </Box>
         </Box>

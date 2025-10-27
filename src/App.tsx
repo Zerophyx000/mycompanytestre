@@ -20,6 +20,7 @@ import {
 import HomeIcon from "@mui/icons-material/Home";
 import PeopleIcon from "@mui/icons-material/People";
 import WhatshotIcon from "@mui/icons-material/Whatshot";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import SearchIcon from "@mui/icons-material/Search";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
@@ -27,32 +28,33 @@ import CloseIcon from "@mui/icons-material/Close";
 
 import DashboardLite from "./DashboardLite";
 import AdressePage from "./AddressPage3";
-import SchadenPage, { type SchadenRow } from "./SchadenPage";
+import SchadenPage, { type SchadenRow, SCHADEN_ROWS } from "./SchadenPage";
 import SchadenTabs from "./SchadenTabs";
 import { AddressDetailLayout } from "./AddressDetailLayout 2";
+import SchadenCalendar from "./Calender" 
 
-type MainKey = "dashboard" | "adressen" | "schaeden";
+type MainKey = "dashboard" | "adressen" | "schaeden" | "calendar";
 
 type TabItem = {
-  key: string;           
-  label: string;         
-  row?: SchadenRow;      
-  adrKey?: string;      
+  key: string;     
+  label: string;
+  row?: SchadenRow;
+  adrKey?: string;
 };
 
 type User = {
   id: "max" | "anna";
   name: string;
   avatar: string;
-  permissions: MainKey[]; 
+  permissions: MainKey[];
 };
 
 const USERS: Record<User["id"], User> = {
-  max:  { id: "max",  name: "Max Mustermann", avatar: "MM", permissions: ["dashboard", "schaeden"] },
-  anna: { id: "anna", name: "Anna Admin",     avatar: "AA", permissions: ["dashboard", "adressen"] },
+  max:  { id: "max",  name: "Max Mustermann", avatar: "MM", permissions: ["dashboard", "schaeden", "calendar"] },
+  anna: { id: "anna", name: "Anna Admin",     avatar: "AA", permissions: ["dashboard", "adressen", "calendar"] },
 };
 
-const RECENT_MAX = 8; 
+const RECENT_MAX = 8;
 
 export default function App() {
   const [user, setUser] = React.useState<User>(USERS.max);
@@ -63,7 +65,6 @@ export default function App() {
   const [activeKey, setActiveKey] = React.useState<string>("dashboard");
 
   const [recentSchadens, setRecentSchadens] = React.useState<SchadenRow[]>([]);
-
   const activeIndex = Math.max(0, tabs.findIndex((t) => t.key === activeKey));
 
   const canSee = (k: MainKey) => user.permissions.includes(k);
@@ -71,7 +72,7 @@ export default function App() {
   const openTab = (key: MainKey) => {
     if (!canSee(key)) return;
     if (tabs.some((t) => t.key === key)) return setActiveKey(key);
-    setTabs((prev) => [...prev, { key, label: capital(key) }]);
+    setTabs((prev) => [...prev, { key, label: labelFor(key) }]);
     setActiveKey(key);
   };
 
@@ -82,11 +83,7 @@ export default function App() {
       setTabs((prev) => [...prev, { key, label: `Schaden ${row.adrKey}`, row }]);
     }
     setActiveKey(key);
-
-    setRecentSchadens((prev) => {
-      const dedup = prev.filter((r) => r.id !== row.id);
-      return [row, ...dedup].slice(0, RECENT_MAX);
-    });
+    setRecentSchadens((prev) => [row, ...prev.filter((r) => r.id !== row.id)].slice(0, RECENT_MAX));
   };
 
   const openAddressTab = (adrKey: string) => {
@@ -99,7 +96,7 @@ export default function App() {
   };
 
   const closeTab = (key: string) => {
-    if (tabs.length === 1) return; 
+    if (tabs.length === 1) return;
     const next = tabs.filter((t) => t.key !== key);
     setTabs(next);
     if (activeKey === key && next.length > 0) setActiveKey(next[next.length - 1].key);
@@ -114,6 +111,7 @@ export default function App() {
       if (t.key === "dashboard") return true;
       if (t.key === "adressen") return nextUser.permissions.includes("adressen");
       if (t.key === "schaeden") return nextUser.permissions.includes("schaeden");
+      if (t.key === "calendar") return nextUser.permissions.includes("calendar");
       if (t.key.startsWith("address:")) return nextUser.permissions.includes("adressen");
       if (t.key.startsWith("claim:")) return nextUser.permissions.includes("schaeden");
       return false;
@@ -121,9 +119,7 @@ export default function App() {
 
     const nextTabs = filtered.length ? filtered : [{ key: "dashboard", label: "Dashboard" }];
     setTabs(nextTabs);
-
-    const stillActive = nextTabs.some((t) => t.key === activeKey);
-    setActiveKey(stillActive ? activeKey : "dashboard");
+    setActiveKey(nextTabs.some((t) => t.key === activeKey) ? activeKey : "dashboard");
   }
 
   function elementFor(t: TabItem): React.ReactNode {
@@ -132,12 +128,13 @@ export default function App() {
         <DashboardLite
           user={{ id: user.id, name: user.name, avatar: user.avatar }}
           onSwitchUser={handleSwitchUser}
-          recentSchadens={recentSchadens}
-        />
+          recentSchadens={recentSchadens} 
+          onOpenClaim={openClaimTab}/>
       );
     }
     if (t.key === "adressen") return <AdressePage onOpenAddress={openAddressTab} />;
     if (t.key === "schaeden") return <SchadenPage onOpenClaim={openClaimTab} />;
+    if (t.key === "calendar") return <SchadenCalendar rows={SCHADEN_ROWS} />; 
     if (t.key.startsWith("claim:") && t.row) return <SchadenTabs claim={t.row} />;
     if (t.key.startsWith("address:") && t.adrKey) return <AddressDetailLayout adrKey={t.adrKey} />;
     return <Box />;
@@ -152,15 +149,9 @@ export default function App() {
           <Avatar sx={{ mr: 1 }}>{user.avatar}</Avatar>
           <Typography>{user.name}</Typography>
           <Box flexGrow={1} />
-          <Tooltip title="Suchen">
-            <IconButton size="small"><SearchIcon /></IconButton>
-          </Tooltip>
-          <Tooltip title="Chat">
-            <IconButton size="small"><ChatBubbleOutlineIcon /></IconButton>
-          </Tooltip>
-          <Tooltip title="Benachrichtigungen">
-            <IconButton size="small"><NotificationsNoneIcon /></IconButton>
-          </Tooltip>
+          <Tooltip title="Suchen"><IconButton size="small"><SearchIcon /></IconButton></Tooltip>
+          <Tooltip title="Chat"><IconButton size="small"><ChatBubbleOutlineIcon /></IconButton></Tooltip>
+          <Tooltip title="Benachrichtigungen"><IconButton size="small"><NotificationsNoneIcon /></IconButton></Tooltip>
           <Button variant="contained" size="small">Aktion</Button>
         </Toolbar>
       </AppBar>
@@ -181,10 +172,7 @@ export default function App() {
                   {t.key !== "dashboard" && (
                     <IconButton
                       size="small"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        closeTab(t.key);
-                      }}
+                      onClick={(e) => { e.stopPropagation(); closeTab(t.key); }}
                     >
                       <CloseIcon fontSize="small" />
                     </IconButton>
@@ -197,34 +185,31 @@ export default function App() {
       </Paper>
 
       <Stack direction="row" flexGrow={1} minHeight={0}>
-
         <Paper square>
           <List>
-            <ListItemButton
-              selected={activeKey === "dashboard"}
-              onClick={() => openTab("dashboard")}
-            >
+            <ListItemButton selected={activeKey === "dashboard"} onClick={() => openTab("dashboard")}>
               <ListItemIcon><HomeIcon /></ListItemIcon>
               {!isDetailTab && <ListItemText primary="Dashboard" />}
             </ListItemButton>
 
             {user.permissions.includes("adressen") && (
-              <ListItemButton
-                selected={activeKey === "adressen"}
-                onClick={() => openTab("adressen")}
-              >
+              <ListItemButton selected={activeKey === "adressen"} onClick={() => openTab("adressen")}>
                 <ListItemIcon><PeopleIcon /></ListItemIcon>
                 {!isDetailTab && <ListItemText primary="Adressen" />}
               </ListItemButton>
             )}
 
             {user.permissions.includes("schaeden") && (
-              <ListItemButton
-                selected={activeKey === "schaeden"}
-                onClick={() => openTab("schaeden")}
-              >
+              <ListItemButton selected={activeKey === "schaeden"} onClick={() => openTab("schaeden")}>
                 <ListItemIcon><WhatshotIcon /></ListItemIcon>
                 {!isDetailTab && <ListItemText primary="Schäden" />}
+              </ListItemButton>
+            )}
+
+            {user.permissions.includes("calendar") && (
+              <ListItemButton selected={activeKey === "calendar"} onClick={() => openTab("calendar")}>
+                <ListItemIcon><CalendarMonthIcon /></ListItemIcon>
+                {!isDetailTab && <ListItemText primary="Kalender" />}
               </ListItemButton>
             )}
           </List>
@@ -244,6 +229,10 @@ export default function App() {
   );
 }
 
-function capital(s: string) {
-  return s.charAt(0).toUpperCase() + s.slice(1);
+function labelFor(key: MainKey) {
+  if (key === "dashboard") return "Dashboard";
+  if (key === "adressen") return "Adressen";
+  if (key === "schaeden") return "Schäden";
+  if (key === "calendar") return "Kalender";
+  return key;
 }
