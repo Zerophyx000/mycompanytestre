@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import * as React from "react";
 import {
   Box,
   Typography,
@@ -173,7 +171,6 @@ export default function AddressOverview({ adrKey }: Props) {
           </Paper>
         </Box>
 
-        {/* right */}
         <Box sx={{ flex: 1, minWidth: 260 }}>
           <Paper sx={{ p: 3 }}>
             <Box

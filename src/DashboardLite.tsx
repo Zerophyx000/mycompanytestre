@@ -120,7 +120,6 @@ export default function DashboardLite({
           <DataGrid
             rows={filteredRows}
             columns={columns}
-            autoHeight
             hideFooterPagination
             disableRowSelectionOnClick
             onRowClick={(params) => onOpenClaim(params.row)}

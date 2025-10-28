@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import { useState } from "react";
 import {
   Box,
@@ -151,7 +150,6 @@ export default function AddressPage({ onOpenAddress }: Props) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const navigateToHome = () => {
-    // Instead of useNavigate, call parent function or reload
     window.location.href = '/dashboard';
   };
 
