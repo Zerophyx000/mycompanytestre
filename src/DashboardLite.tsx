@@ -25,7 +25,6 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import AllInboxIcon from "@mui/icons-material/AllInbox";
 import ViewColumnIcon from "@mui/icons-material/ViewColumn";
 import FilterListIcon from "@mui/icons-material/FilterList";
-import RefreshIcon from "@mui/icons-material/Refresh";
 import DownloadIcon from "@mui/icons-material/Download";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { type SchadenRow, type SchadenViewKey, SCHADEN_VIEWS } from "./SchadenPage";
@@ -97,7 +96,6 @@ export default function DashboardLite({
             <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>Letzte Schäden</Typography>
             <Tooltip title="Spalten"><IconButton><ViewColumnIcon /></IconButton></Tooltip>
             <Tooltip title="Filtern"><IconButton><FilterListIcon /></IconButton></Tooltip>
-            <Tooltip title="Aktualisieren"><IconButton><RefreshIcon /></IconButton></Tooltip>
             <Tooltip title="Exportieren"><IconButton><DownloadIcon /></IconButton></Tooltip>
             <Tooltip title="Mehr"><IconButton><MoreVertIcon /></IconButton></Tooltip>
           </Toolbar>
