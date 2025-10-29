@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Box,
   Paper,
@@ -16,6 +16,7 @@ import {
   CssBaseline,
   Menu,
   MenuItem,
+  ButtonGroup,
 } from "@mui/material";
 import {
   Home as HomeIcon,
@@ -149,9 +150,9 @@ type Props = {
 export default function AddressPage({ onOpenAddress }: Props) {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [activeFilter, setActiveFilter] = useState("alle");
 
   const navigateToHome = () => {
-    // Instead of useNavigate, call parent function or reload
     window.location.href = '/dashboard';
   };
 
@@ -168,6 +169,25 @@ export default function AddressPage({ onOpenAddress }: Props) {
     land: 'Schweiz',
     notizen: ''
   });
+
+  // Filter options
+  const filterOptions = [
+    { key: "alle", label: "Alle" },
+    { key: "aktiv", label: "Aktiv" },
+    { key: "pending", label: "Pending" },
+    { key: "inactive", label: "Inaktiv" },
+    { key: "premium", label: "Premium" },
+  ];
+
+  // Filter the addressData based on activeFilter
+  const filteredAddressData = useMemo(() => {
+    if (activeFilter === "alle") return addressData;
+    if (activeFilter === "aktiv") return addressData.filter(a => a.status === "Active");
+    if (activeFilter === "pending") return addressData.filter(a => a.status === "Pending");
+    if (activeFilter === "inactive") return addressData.filter(a => a.status === "Inactive");
+    if (activeFilter === "premium") return addressData.filter(a => a.class === "Premium");
+    return addressData;
+  }, [activeFilter]);
 
   const columns: GridColDef[] = [
     { field: 'adrKey', headerName: 'AdrKey', minWidth: 100, flex: 1 },
@@ -230,41 +250,34 @@ export default function AddressPage({ onOpenAddress }: Props) {
   return (
     <>
       <CssBaseline />
-      <Box component="main" minHeight="100vh" display="flex" flexDirection="column">
-        <Box px={3} pt={2} pb={1}>
-          <Breadcrumbs aria-label="breadcrumb">
-            <Link
-              component="button"
-              variant="body2"
-              onClick={navigateToHome}
-              underline="hover"
-              display="flex"
-              alignItems="center"
-              gap={1}
-            >
-              <HomeIcon fontSize="small" />
-              Dashboard
-            </Link>
-            <Stack direction="row" alignItems="center" spacing={1}>
-              <PeopleIcon fontSize="small" />
-              <Typography variant="body2">Adressen</Typography>
-            </Stack>
-          </Breadcrumbs>
-        </Box>
+      <Box sx={{ minHeight: "100vh", bgcolor: "background.default", p: 3 }}>
+        <Breadcrumbs sx={{ mb: 2 }}>
+          <Link
+            underline="hover"
+            color="inherit"
+            href="#"
+            onClick={navigateToHome}
+            sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+          >
+            <HomeIcon fontSize="small" />
+            Dashboard
+          </Link>
+          <Typography color="text.primary" sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+            <PeopleIcon fontSize="small" />
+            Adressen
+          </Typography>
+        </Breadcrumbs>
 
-        <Box px={3} pb={2}>
-          <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
-            <Stack direction="row" alignItems="center" spacing={2}>
-              <PeopleIcon fontSize="large" />
-              <Box>
-                <Typography variant="h4" component="h1" fontWeight="bold">
-                  Adressen
-                </Typography>
-                <Typography variant="body2">
-                  Kontakte und Adressen verwalten
-                </Typography>
-              </Box>
-            </Stack>
+        <Paper elevation={0} sx={{ p: 3, border: "1px solid", borderColor: "divider" }}>
+          <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+            <Box>
+              <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <PeopleIcon /> Adressen
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Kontakte und Adressen verwalten
+              </Typography>
+            </Box>
             <Button
               variant="contained"
               onClick={() => setIsCreateDialogOpen(true)}
@@ -274,180 +287,208 @@ export default function AddressPage({ onOpenAddress }: Props) {
               Neue Adresse
             </Button>
           </Stack>
-          <Stack direction="row" alignItems="center" spacing={1} mb={2}>
-            <PersonAddIcon fontSize="small" />
-            <Typography variant="body2">Schnellaktion verfügbar: Neue Adresse hinzufügen</Typography>
-            <Typography variant="caption" ml="auto">Klicken Sie auf "Neue Adresse" um loszulegen</Typography>
-          </Stack>
-        </Box>
 
-        {/* FIXED: Responsive DataGrid, never overflows! */}
-        <Box flex={1} px={3} pb={3} sx={{ minWidth: 0 }}>
-          <Paper sx={{ width: "100%", overflow: "auto" }}>
-            <Box sx={{
-              width: "100%",
-              minWidth: 950,
-              maxWidth: "100vw",
-              height: 520,
-              overflowX: "auto"
-            }}>
-              <DataGrid
-                rows={addressData}
-                columns={columns}
-                initialState={{
-                  pagination: {
-                    paginationModel: { page: 0, pageSize: 10 },
-                  },
-                }}
-                pageSizeOptions={[5, 10, 25, 50]}
-                onRowClick={handleRowClick}
-                checkboxSelection
-                disableRowSelectionOnClick={false}
-                slots={{ toolbar: GridToolbar }}
-                slotProps={{
-                  toolbar: {
-                    showQuickFilter: true,
-                    quickFilterProps: { debounceMs: 500 },
-                  },
-                }}
-              />
-            </Box>
-          </Paper>
-        </Box>
+          <Box
+            sx={{
+              bgcolor: "info.light",
+              color: "info.contrastText",
+              p: 1.5,
+              borderRadius: 1,
+              mb: 2
+            }}
+          >
+            <Typography variant="body2">
+              <strong>Schnellaktion verfügbar: Neue Adresse hinzufügen</strong>
+            </Typography>
+            <Typography variant="caption">
+              Klicken Sie auf "Neue Adresse" um loszulegen
+            </Typography>
+          </Box>
 
-        <Dialog open={isCreateDialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
+          {/* Button Group for filtering */}
+          <Box sx={{ mb: 2 }}>
+            <ButtonGroup>
+              {filterOptions.map((option) => (
+                <Button
+                  key={option.key}
+                  variant={activeFilter === option.key ? "contained" : "outlined"}
+                  className={activeFilter === option.key ? "Mui-selected" : ""}
+                  onClick={() => setActiveFilter(option.key)}
+                >
+                  {option.label}
+                </Button>
+              ))}
+            </ButtonGroup>
+          </Box>
+
+          {/* FIXED: Responsive DataGrid, never overflows! */}
+          <Box sx={{ width: "100%", height: 500 }}>
+            <DataGrid
+              rows={filteredAddressData}
+              columns={columns}
+              pageSizeOptions={[5, 10, 25]}
+              initialState={{
+                pagination: { paginationModel: { pageSize: 10 } }
+              }}
+              disableRowSelectionOnClick
+              slots={{ toolbar: GridToolbar }}
+              slotProps={{
+                toolbar: {
+                  showQuickFilter: true,
+                }
+              }}
+              onRowClick={handleRowClick}
+              sx={{
+                border: "none",
+                "& .MuiDataGrid-cell:focus": {
+                  outline: "none"
+                },
+                "& .MuiDataGrid-row:hover": {
+                  cursor: "pointer"
+                }
+              }}
+            />
+          </Box>
+        </Paper>
+
+        <Dialog
+          open={isCreateDialogOpen}
+          onClose={handleCloseDialog}
+          maxWidth="sm"
+          fullWidth
+        >
           <DialogTitle>
-            <Stack direction="row" justifyContent="space-between" alignItems="center">
-              <Typography variant="h6" fontWeight="bold">Neue Adresse erstellen</Typography>
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+              <Typography variant="h6" fontWeight="bold">
+                Neue Adresse erstellen
+              </Typography>
               <IconButton onClick={handleCloseDialog} size="small">
                 <CloseIcon />
               </IconButton>
-            </Stack>
-          </DialogTitle>
-          <DialogContent>
-            <Typography variant="body2" paragraph>
+            </Box>
+            <Typography variant="body2" color="text.secondary" mt={1}>
               Erstellen Sie einen neuen Kontakt oder eine neue Adresse im System.
             </Typography>
-            <Box mb={3}>
-              <Typography variant="subtitle2" gutterBottom>
-                Adresstyp *
-              </Typography>
-              <Button
-                fullWidth
-                variant="outlined"
-                onClick={handleMenuOpen}
-                endIcon={<ArrowDownIcon />}
-              >
-                {!addressType
-                  ? "Typ auswählen..."
-                  : addressType === 'person'
-                  ? 'Person'
-                  : 'Unternehmen'
-                }
-              </Button>
-              <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-                <MenuItem onClick={() => handleTypeSelect('person')}>
-                  <PersonIcon sx={{ mr: 1 }} /> Person
-                </MenuItem>
-                <MenuItem onClick={() => handleTypeSelect('unternehmen')}>
-                  <BusinessIcon sx={{ mr: 1 }} /> Unternehmen
-                </MenuItem>
-              </Menu>
-            </Box>
-            {addressType && (
-              <Stack spacing={3}>
-                {addressType === 'unternehmen' ? (
-                  <TextField
-                    fullWidth
-                    label="Firmenname *"
-                    placeholder="Beispiel GmbH"
-                    value={formData.firmenname}
-                    onChange={e => handleInputChange('firmenname', e.target.value)}
-                  />
-                ) : (
-                  <Stack direction="row" spacing={2}>
-                    <TextField
-                      fullWidth
-                      label="Vorname *"
-                      placeholder="Max"
-                      value={formData.vorname}
-                      onChange={e => handleInputChange('vorname', e.target.value)}
-                    />
-                    <TextField
-                      fullWidth
-                      label="Nachname *"
-                      placeholder="Mustermann"
-                      value={formData.nachname}
-                      onChange={e => handleInputChange('nachname', e.target.value)}
-                    />
-                  </Stack>
-                )}
-                <Stack direction="row" spacing={2}>
-                  <TextField
-                    fullWidth
-                    label="E-Mail"
-                    type="email"
-                    placeholder="beispiel@email.com"
-                    value={formData.email}
-                    onChange={e => handleInputChange('email', e.target.value)}
-                  />
-                  <TextField
-                    fullWidth
-                    label="Telefon"
-                    type="tel"
-                    placeholder="+41 XX XXX XX XX"
-                    value={formData.telefon}
-                    onChange={e => handleInputChange('telefon', e.target.value)}
-                  />
-                </Stack>
-                <Stack spacing={2}>
-                  <TextField
-                    fullWidth
-                    label="Straße und Hausnummer"
-                    value={formData.strasse}
-                    onChange={e => handleInputChange('strasse', e.target.value)}
-                  />
-                  <Stack direction="row" spacing={2}>
-                    <TextField
-                      label="PLZ"
-                      value={formData.plz}
-                      onChange={e => handleInputChange('plz', e.target.value)}
-                    />
-                    <TextField
-                      fullWidth
-                      label="Stadt"
-                      value={formData.stadt}
-                      onChange={e => handleInputChange('stadt', e.target.value)}
-                    />
-                  </Stack>
-                  <TextField
-                    fullWidth
-                    label="Land"
-                    value={formData.land}
-                    onChange={e => handleInputChange('land', e.target.value)}
-                  />
-                </Stack>
-                <TextField
+          </DialogTitle>
+          <DialogContent>
+            <Stack spacing={2} mt={1}>
+              <Box>
+                <Typography variant="body2" fontWeight="medium" mb={1}>
+                  Adresstyp *
+                </Typography>
+                <Button
                   fullWidth
-                  label="Notizen"
-                  multiline
-                  rows={3}
-                  value={formData.notizen}
-                  onChange={e => handleInputChange('notizen', e.target.value)}
-                />
+                  variant="outlined"
+                  endIcon={<ArrowDownIcon />}
+                  onClick={handleMenuOpen}
+                  sx={{ justifyContent: "space-between" }}
+                >
+                  {!addressType
+                    ? "Typ auswählen..."
+                    : addressType === 'person'
+                    ? 'Person'
+                    : 'Unternehmen'
+                  }
+                </Button>
+                <Menu
+                  anchorEl={anchorEl}
+                  open={Boolean(anchorEl)}
+                  onClose={handleMenuClose}
+                >
+                  <MenuItem onClick={() => handleTypeSelect('person')}>
+                    <PersonIcon fontSize="small" sx={{ mr: 1 }} /> Person
+                  </MenuItem>
+                  <MenuItem onClick={() => handleTypeSelect('unternehmen')}>
+                    <BusinessIcon fontSize="small" sx={{ mr: 1 }} /> Unternehmen
+                  </MenuItem>
+                </Menu>
+              </Box>
+
+              {addressType && (
+                <>
+                  {addressType === 'unternehmen' ? (
+                    <TextField
+                      label="Firmenname *"
+                      fullWidth
+                      value={formData.firmenname}
+                      onChange={(e) => handleInputChange('firmenname', e.target.value)}
+                    />
+                  ) : (
+                    <>
+                      <TextField
+                        label="Vorname *"
+                        fullWidth
+                        value={formData.vorname}
+                        onChange={(e) => handleInputChange('vorname', e.target.value)}
+                      />
+                      <TextField
+                        label="Nachname *"
+                        fullWidth
+                        value={formData.nachname}
+                        onChange={(e) => handleInputChange('nachname', e.target.value)}
+                      />
+                    </>
+                  )}
+                  <TextField
+                    label="E-Mail *"
+                    type="email"
+                    fullWidth
+                    value={formData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                  />
+                  <TextField
+                    label="Telefon"
+                    fullWidth
+                    value={formData.telefon}
+                    onChange={(e) => handleInputChange('telefon', e.target.value)}
+                  />
+                  <TextField
+                    label="Strasse"
+                    fullWidth
+                    value={formData.strasse}
+                    onChange={(e) => handleInputChange('strasse', e.target.value)}
+                  />
+                  <TextField
+                    label="PLZ"
+                    fullWidth
+                    value={formData.plz}
+                    onChange={(e) => handleInputChange('plz', e.target.value)}
+                  />
+                  <TextField
+                    label="Stadt"
+                    fullWidth
+                    value={formData.stadt}
+                    onChange={(e) => handleInputChange('stadt', e.target.value)}
+                  />
+                  <TextField
+                    label="Land"
+                    fullWidth
+                    value={formData.land}
+                    onChange={(e) => handleInputChange('land', e.target.value)}
+                  />
+                  <TextField
+                    label="Notizen"
+                    fullWidth
+                    multiline
+                    rows={3}
+                    value={formData.notizen}
+                    onChange={(e) => handleInputChange('notizen', e.target.value)}
+                  />
+                </>
+              )}
+
+              <Stack direction="row" spacing={2} justifyContent="flex-end" mt={2}>
+                <Button variant="outlined" onClick={handleCloseDialog}>
+                  Abbrechen
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={handleSubmit}
+                  disabled={!addressType}
+                >
+                  Adresse erstellen
+                </Button>
               </Stack>
-            )}
-            <Stack direction="row" justifyContent="flex-end" spacing={2} mt={4} pt={2}>
-              <Button variant="outlined" onClick={handleCloseDialog}>
-                Abbrechen
-              </Button>
-              <Button
-                variant="contained"
-                onClick={handleSubmit}
-                disabled={!addressType}
-              >
-                Adresse erstellen
-              </Button>
             </Stack>
           </DialogContent>
         </Dialog>

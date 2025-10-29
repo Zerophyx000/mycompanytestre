@@ -134,6 +134,13 @@ function AddressDetailLayout({ adrKey }: AddressDetailLayoutProps) {
     }
   };
 
+  const getStatusColor = (status: string) => {
+    if (status.toLowerCase() === "active") return "success";
+    if (status.toLowerCase() === "pending") return "warning";
+    if (status.toLowerCase() === "inactive") return "error";
+    return "default";
+  }
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden" }}>
       {/* Breadcrumbs */}
@@ -187,7 +194,7 @@ function AddressDetailLayout({ adrKey }: AddressDetailLayoutProps) {
 
           <Chip
             label={addressData.status}
-            color={addressData.status === "Active" ? "success" : "warning"}
+            color={getStatusColor(addressData.status)}
             size="small"
             sx={{ mb: 2 }}
           />
