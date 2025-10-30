@@ -8,12 +8,12 @@ import {
   Home as HomeIcon, Whatshot as WhatshotIcon, Dashboard as DashboardIcon,
   Timeline as TimelineIcon, Note as NoteIcon, Folder as FolderIcon
 } from "@mui/icons-material";
+
 import type { SchadenRow } from "./SchadenPage";
 import SchadenOverviewPage from "./SchadenOverviewPage";
 import NoteDialog from "./NoteDialog";
 import NotesTab from "./NotesTab";
 import { NotesContext, type NoteItem, type NewNoteInput } from "./NotesContext";
-
 import DocumentDialog from "./DocumentDialog";
 import DocumentsTab from "./DocumentsTab";
 import { DocumentsContext, type DocumentItem } from "./DocumentsContext";
@@ -25,9 +25,9 @@ type TabId = "overview" | "timeline" | "notiz" | "docs";
 
 export default function SchadenTabs({ claim }: { claim: SchadenRow }) {
   const [currentTab, setCurrentTab] = React.useState<TabId>("overview");
-
   const [notes, setNotes] = React.useState<NoteItem[]>([]);
   const [noteOpen, setNoteOpen] = React.useState(false);
+
   const addNote = (n: NewNoteInput) =>
     setNotes((prev) => [
       {
@@ -41,8 +41,10 @@ export default function SchadenTabs({ claim }: { claim: SchadenRow }) {
       },
       ...prev,
     ]);
+
   const togglePin = (id: string) =>
     setNotes((prev) => prev.map((x) => (x.id === id ? { ...x, pinned: !x.pinned } : x)));
+
   const removeNote = (id: string) => setNotes((prev) => prev.filter((x) => x.id !== id));
 
   const [docs, setDocs] = React.useState<DocumentItem[]>([]);
@@ -81,12 +83,10 @@ export default function SchadenTabs({ claim }: { claim: SchadenRow }) {
         return <SchadenOverviewPage />;
       case "timeline":
         return (
-          <Paper className="panel">
-            <Box padding={2}>
-              <Typography variant="h6">Activity Timeline</Typography>
-              <Typography variant="body2" color="text.secondary">(Platzhalter)</Typography>
-            </Box>
-          </Paper>
+          <Box sx={{ p: 3 }}>
+            <Typography variant="h5">Activity Timeline</Typography>
+            <Typography>(Platzhalter)</Typography>
+          </Box>
         );
       case "notiz":
         return <NotesTab />;
@@ -96,63 +96,62 @@ export default function SchadenTabs({ claim }: { claim: SchadenRow }) {
   };
 
   return (
-    <ClaimContext.Provider value={claim}>
-      <NotesContext.Provider
+    <NotesContext.Provider
+      value={{
+        notes,
+        openCreate: () => setNoteOpen(true),
+        addNote,
+        togglePin,
+        removeNote,
+      }}
+    >
+      <DocumentsContext.Provider
         value={{
-          notes,
-          openCreate: () => setNoteOpen(true),
-          addNote,
-          togglePin,
-          removeNote,
+          docs,
+          openCreate: () => setDocOpen(true),
+          addFiles,
+          removeDoc,
         }}
       >
-        <DocumentsContext.Provider
-          value={{
-            docs,
-            openCreate: () => setDocOpen(true),
-            addFiles,
-            removeDoc,
-          }}
-        >
+        <ClaimContext.Provider value={claim}>
           <CssBaseline />
-          <Box className="schaden-tabs-shell">
-            <Box className="schaden-tabs-breadcrumbs">
-              <Breadcrumbs aria-label="breadcrumb">
-                <Stack direction="row" alignItems="center" spacing={1}>
-                  <HomeIcon fontSize="small" />
-                  <Typography variant="body2">Dashboard</Typography>
-                </Stack>
-                <Stack direction="row" alignItems="center" spacing={1}>
-                  <WhatshotIcon fontSize="small" />
-                  <Typography variant="body2">Schäden</Typography>
-                </Stack>
-                <Typography variant="body2">{claim.adrKey}</Typography>
-              </Breadcrumbs>
+          <Stack direction="row" spacing={2}>  {/* ✅ CHANGED FROM "column" TO "row" */}
+            <Box sx={{ flex: 1 }}>
+              <Box sx={{ mb: 2 }}>
+                <Breadcrumbs>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <HomeIcon fontSize="small" />
+                    <Typography>Dashboard</Typography>
+                  </Box>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <WhatshotIcon fontSize="small" />
+                    <Typography>Schäden</Typography>
+                  </Box>
+                  <Typography color="text.primary">{claim.adrKey}</Typography>
+                </Breadcrumbs>
+              </Box>
+              {renderTab()}
             </Box>
 
-            <Box className="schaden-tabs-grid">
-              <Box className="schaden-tabs-main">{renderTab()}</Box>
-
-              <Paper className="schaden-tabs-rightnav">
-                <Box padding={2}>
-                  <Typography variant="h6" fontWeight="bold">Navigation</Typography>
-                </Box>
-                <Divider />
-                <List>
-                  {tabs.map((tab) => (
-                    <ListItemButton
-                      key={tab.id}
-                      selected={currentTab === tab.id}
-                      onClick={() => setCurrentTab(tab.id)}
-                    >
-                      <ListItemIcon>{tab.icon}</ListItemIcon>
-                      <ListItemText primary={tab.label} />
-                    </ListItemButton>
-                  ))}
-                </List>
-              </Paper>
-            </Box>
-          </Box>
+            <Paper elevation={0} sx={{ width: 280, p: 2 }}>
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                Navigation
+              </Typography>
+              <Divider sx={{ mb: 2 }} />
+              <List>
+                {tabs.map((tab) => (
+                  <ListItemButton
+                    key={tab.id}
+                    selected={currentTab === tab.id}
+                    onClick={() => setCurrentTab(tab.id)}
+                  >
+                    <ListItemIcon>{tab.icon}</ListItemIcon>
+                    <ListItemText primary={tab.label} />
+                  </ListItemButton>
+                ))}
+              </List>
+            </Paper>
+          </Stack>
 
           <NoteDialog
             open={noteOpen}
@@ -171,8 +170,8 @@ export default function SchadenTabs({ claim }: { claim: SchadenRow }) {
               setCurrentTab("docs");
             }}
           />
-        </DocumentsContext.Provider>
-      </NotesContext.Provider>
-    </ClaimContext.Provider>
+        </ClaimContext.Provider>
+      </DocumentsContext.Provider>
+    </NotesContext.Provider>
   );
 }

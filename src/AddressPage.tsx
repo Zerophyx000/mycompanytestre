@@ -1,4 +1,6 @@
-import { useState } from "react";
+/* eslint-disable react-refresh/only-export-components */
+import { useState, useMemo } from "react";
+
 import {
   Box,
   Paper,
@@ -15,7 +17,9 @@ import {
   CssBaseline,
   Menu,
   MenuItem,
+  ButtonGroup,
 } from "@mui/material";
+
 import {
   Home as HomeIcon,
   People as PeopleIcon,
@@ -25,6 +29,7 @@ import {
   Person as PersonIcon,
   KeyboardArrowDown as ArrowDownIcon,
 } from "@mui/icons-material";
+
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import type { GridColDef, GridRowParams } from "@mui/x-data-grid";
 import { useTranslation } from "react-i18next";
@@ -150,7 +155,8 @@ type Props = {
 export default function AddressPage({ onOpenAddress }: Props) {
   const { t } = useTranslation();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [activeFilter, setActiveFilter] = useState("alle");
 
   const navigateToHome = () => {
     window.location.href = '/dashboard';
@@ -169,6 +175,25 @@ export default function AddressPage({ onOpenAddress }: Props) {
     land: 'Schweiz',
     notizen: ''
   });
+
+  // Filter options
+  const filterOptions = [
+    { key: "alle", label: "Alle" },
+    { key: "aktiv", label: "Aktiv" },
+    { key: "pending", label: "Pending" },
+    { key: "inactive", label: "Inaktiv" },
+    { key: "premium", label: "Premium" },
+  ];
+
+  // Filter the addressData based on activeFilter
+  const filteredAddressData = useMemo(() => {
+    if (activeFilter === "alle") return addressData;
+    if (activeFilter === "aktiv") return addressData.filter(a => a.status === "Active");
+    if (activeFilter === "pending") return addressData.filter(a => a.status === "Pending");
+    if (activeFilter === "inactive") return addressData.filter(a => a.status === "Inactive");
+    if (activeFilter === "premium") return addressData.filter(a => a.class === "Premium");
+    return addressData;
+  }, [activeFilter]);
 
   const columns: GridColDef[] = [
     { field: 'adrKey', headerName: t('address.grid.adrKey'), minWidth: 100, flex: 1 },
@@ -280,110 +305,134 @@ export default function AddressPage({ onOpenAddress }: Props) {
             <Typography variant="body2">{t("address.quick.add")}</Typography>
             <Typography variant="caption" ml="auto">{t("address.quick.hint")}</Typography>
           </Stack>
-        </Box>
+        )}
 
-        <Box flex={1} px={3} pb={3} sx={{ minWidth: 0 }}>
-          <Paper sx={{ width: "100%", overflow: "auto" }}>
-            <Box sx={{
-              width: "100%",
-              minWidth: 950,
-              maxWidth: "100vw",
-              height: 520,
-              overflowX: "auto"
-            }}>
-              <DataGrid
-                rows={addressData}
-                columns={columns}
-                initialState={{
-                  pagination: {
-                    paginationModel: { page: 0, pageSize: 10 },
-                  },
-                }}
-                pageSizeOptions={[5, 10, 25, 50]}
-                onRowClick={handleRowClick}
-                checkboxSelection
-                disableRowSelectionOnClick={false}
-                slots={{ toolbar: GridToolbar }}
-                slotProps={{
-                  toolbar: {
-                    showQuickFilter: true,
-                    quickFilterProps: { debounceMs: 500 },
-                  },
-                }}
-              />
-            </Box>
-          </Paper>
-        </Box>
+        {/* Button Group for filtering */}
+        <ButtonGroup variant="outlined" sx={{ mb: 2 }}>
+          {filterOptions.map((option) => (
+            <Button
+              key={option.key}
+              variant={activeFilter === option.key ? "contained" : "outlined"}
+              onClick={() => setActiveFilter(option.key)}
+            >
+              {option.label}
+            </Button>
+          ))}
+        </ButtonGroup>
 
-        <Dialog open={isCreateDialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-          <DialogTitle>
-            <Stack direction="row" justifyContent="space-between" alignItems="center">
-              <Typography variant="h6" fontWeight="bold">{t("address.create.title")}</Typography>
-              <IconButton onClick={handleCloseDialog} size="small" aria-label={t("common.close")}>
-                <CloseIcon />
-              </IconButton>
-            </Stack>
-          </DialogTitle>
-          <DialogContent>
-            <Typography variant="body2" paragraph>
-              {t("address.create.desc")}
-            </Typography>
-            <Box mb={3}>
-              <Typography variant="subtitle2" gutterBottom>
-                {t("address.create.typeLabel")} *
-              </Typography>
-              <Button
-                fullWidth
-                variant="outlined"
-                onClick={handleMenuOpen}
-                endIcon={<ArrowDownIcon />}
-              >
-                {!addressType
-                  ? t("address.create.typePlaceholder")
-                  : addressType === 'person'
-                  ? t("address.create.typePerson")
-                  : t("address.create.typeCompany")
+        <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+          <Box sx={{ height: 600, width: '100%' }}>
+            <DataGrid
+              rows={filteredAddressData}
+              columns={columns}
+              onRowClick={handleRowClick}
+              slots={{ toolbar: GridToolbar }}
+              sx={{
+                border: 'none',
+                '& .MuiDataGrid-row:hover': {
+                  cursor: 'pointer'
                 }
-              </Button>
-              <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-                <MenuItem onClick={() => handleTypeSelect('person')}>
-                  <PersonIcon sx={{ mr: 1 }} /> {t("address.create.typePerson")}
-                </MenuItem>
-                <MenuItem onClick={() => handleTypeSelect('unternehmen')}>
-                  <BusinessIcon sx={{ mr: 1 }} /> {t("address.create.typeCompany")}
-                </MenuItem>
-              </Menu>
-            </Box>
+              }}
+            />
+          </Box>
+        </Paper>
+      </Box>
+
+      <Dialog
+        open={isCreateDialogOpen}
+        onClose={handleCloseDialog}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          <Stack direction="row" justifyContent="space-between" alignItems="center">
+            <Typography variant="h6">Neue Adresse erstellen</Typography>
+            <IconButton onClick={handleCloseDialog} size="small">
+              <CloseIcon />
+            </IconButton>
+          </Stack>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            Erstellen Sie einen neuen Kontakt oder eine neue Adresse im System.
+          </Typography>
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+            <Typography variant="subtitle2">Adresstyp *</Typography>
+            <Button
+              variant="outlined"
+              endIcon={<ArrowDownIcon />}
+              onClick={handleMenuOpen}
+              sx={{ justifyContent: "space-between" }}
+            >
+              {!addressType
+                ? "Typ auswählen..."
+                : addressType === 'person'
+                ? 'Person'
+                : 'Unternehmen'
+              }
+            </Button>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+            >
+              <MenuItem onClick={() => handleTypeSelect('person')}>
+                <PersonIcon sx={{ mr: 1 }} /> Person
+              </MenuItem>
+              <MenuItem onClick={() => handleTypeSelect('unternehmen')}>
+                <BusinessIcon sx={{ mr: 1 }} /> Unternehmen
+              </MenuItem>
+            </Menu>
+
             {addressType && (
-              <Stack spacing={3}>
+              <>
                 {addressType === 'unternehmen' ? (
                   <TextField
+                    label="Firmenname *"
                     fullWidth
-                    label={t("address.form.company") + " *"}
-                    placeholder={t("address.form.companyPh") ?? ""}
                     value={formData.firmenname}
-                    onChange={e => handleInputChange('firmenname', e.target.value)}
+                    onChange={(e) => handleInputChange('firmenname', e.target.value)}
                   />
                 ) : (
-                  <Stack direction="row" spacing={2}>
+                  <>
                     <TextField
+                      label="Vorname *"
                       fullWidth
-                      label={t("address.form.firstName") + " *"}
-                      placeholder={t("address.form.firstNamePh") ?? ""}
                       value={formData.vorname}
-                      onChange={e => handleInputChange('vorname', e.target.value)}
+                      onChange={(e) => handleInputChange('vorname', e.target.value)}
                     />
                     <TextField
                       fullWidth
                       label={t("address.form.lastName") + " *"}
                       placeholder={t("address.form.lastNamePh") ?? ""}
                       value={formData.nachname}
-                      onChange={e => handleInputChange('nachname', e.target.value)}
+                      onChange={(e) => handleInputChange('nachname', e.target.value)}
                     />
-                  </Stack>
+                  </>
                 )}
+
+                <TextField
+                  label="E-Mail"
+                  type="email"
+                  fullWidth
+                  value={formData.email}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                />
+                <TextField
+                  label="Telefon"
+                  fullWidth
+                  value={formData.telefon}
+                  onChange={(e) => handleInputChange('telefon', e.target.value)}
+                />
+                <TextField
+                  label="Strasse"
+                  fullWidth
+                  value={formData.strasse}
+                  onChange={(e) => handleInputChange('strasse', e.target.value)}
+                />
                 <Stack direction="row" spacing={2}>
                   <TextField
+                    label="PLZ"
                     fullWidth
                     label={t("address.form.email")}
                     type="email"
@@ -421,6 +470,7 @@ export default function AddressPage({ onOpenAddress }: Props) {
                     />
                   </Stack>
                   <TextField
+                    label="Stadt"
                     fullWidth
                     label={t("address.form.country")}
                     value={formData.land}
@@ -428,14 +478,16 @@ export default function AddressPage({ onOpenAddress }: Props) {
                   />
                 </Stack>
                 <TextField
+                  label="Land"
                   fullWidth
                   label={t("address.form.notes")}
                   multiline
                   rows={3}
+                  fullWidth
                   value={formData.notizen}
-                  onChange={e => handleInputChange('notizen', e.target.value)}
+                  onChange={(e) => handleInputChange('notizen', e.target.value)}
                 />
-              </Stack>
+              </>
             )}
             <Stack direction="row" justifyContent="flex-end" spacing={2} mt={4} pt={2}>
               <Button variant="outlined" onClick={handleCloseDialog}>
@@ -449,9 +501,9 @@ export default function AddressPage({ onOpenAddress }: Props) {
                 {t("address.create.submit")}
               </Button>
             </Stack>
-          </DialogContent>
-        </Dialog>
-      </Box>
+          </Box>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
