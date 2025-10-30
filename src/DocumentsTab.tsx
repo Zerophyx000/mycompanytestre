@@ -13,27 +13,29 @@ import DownloadIcon from "@mui/icons-material/Download";
 import { DataGrid, type GridColDef, type GridRenderCellParams } from "@mui/x-data-grid";
 import { useDocuments } from "./DocumentsContext";
 import type { DocumentItem } from "./DocumentsContext";
+import { useTranslation } from "react-i18next";
 
 export default function DocumentsTab() {
+  const { t } = useTranslation();
   const api = useDocuments();
   if (!api) return null;
 
   type Row = DocumentItem;
 
   const columns: GridColDef<Row>[] = [
-    { field: "name", headerName: "Dateiname", flex: 1, minWidth: 200 },
+    { field: "name", headerName: t("documents.filename"), flex: 1, minWidth: 200 },
     {
       field: "size",
-      headerName: "Grösse",
+      headerName: t("documents.size"),
       width: 120,
       sortable: true,
       renderCell: (params: GridRenderCellParams<Row>) =>
         `${(params.row.size / 1024).toFixed(1)} KB`,
     },
-    { field: "type", headerName: "Typ", width: 160 },
+    { field: "type", headerName: t("documents.type"), width: 160 },
     {
       field: "uploadedAt",
-      headerName: "Hochgeladen",
+      headerName: t("documents.uploadedAt"),
       width: 180,
       renderCell: (params: GridRenderCellParams<Row>) =>
         new Date(params.row.uploadedAt).toLocaleString(),
@@ -55,7 +57,7 @@ export default function DocumentsTab() {
               download={row.name}
               target="_blank"
               rel="noopener"
-              aria-label="Download"
+              aria-label={t("documents.download")}
             >
               <DownloadIcon />
             </IconButton>
@@ -63,7 +65,7 @@ export default function DocumentsTab() {
               size="small"
               color="error"
               onClick={() => api.removeDoc(row.id)}
-              aria-label="Löschen"
+              aria-label={t("common.delete")}
             >
               <DeleteOutlineIcon />
             </IconButton>
@@ -76,9 +78,9 @@ export default function DocumentsTab() {
   return (
     <Box>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={1}>
-        <Typography variant="h6">Dokumente</Typography>
+        <Typography variant="h6">{t("documents.title")}</Typography>
         <Button startIcon={<AddIcon />} variant="contained" onClick={api.openCreate}>
-          Hochladen
+          {t("documents.upload")}
         </Button>
       </Stack>
 

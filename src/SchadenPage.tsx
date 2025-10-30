@@ -16,19 +16,20 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import DownloadIcon from "@mui/icons-material/Download";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { useTranslation } from "react-i18next";
 
 export type SchadenRow = {
   id: number;
   adrKey: string;
   ownType: string;
   evtTyp: string;
-  evtKey: string;
+  evtKey: string;        // still in data type, just not shown as a column
   memberKey: string;
   member: string;
   adrKeyMain: string;
-  adrKeyNew: string;
-  alternateKey: string;
-  proKey: string;
+  adrKeyNew: string;     // still in data type, just not shown as a column
+  alternateKey: string;  // still in data type, just not shown as a column
+  proKey: string;        // still in data type, just not shown as a column
   aDate: string;
   origin: string;
   class: string;
@@ -36,12 +37,7 @@ export type SchadenRow = {
   statusDate: string;
 };
 
-export type SchadenViewKey =
-  | "aktuell"
-  | "naechste"
-  | "fertig"
-  | "alle"
-  | "apiimport";
+export type SchadenViewKey = "aktuell" | "naechste" | "fertig" | "alle" | "apiimport";
 
 export const SCHADEN_VIEWS: {
   key: SchadenViewKey;
@@ -70,18 +66,18 @@ const rows: SchadenRow[] = [
   { id: 12, adrKey: "ADR012345", ownType: "Company",     evtTyp: "Update", evtKey: "EVT7902", memberKey: "MBR45689", member: "Oscar Diaz",  adrKeyMain: "ADR012345", adrKeyNew: "ADR012346", alternateKey: "ALT789134", proKey: "PRO456800", aDate: "2025-10-15", origin: "API",     class: "Standard",   status: "Pending",  statusDate: "2025-10-15" },
 ];
 
-const columns: GridColDef<SchadenRow>[] = [
+export const SCHADEN_COLUMNS: GridColDef<SchadenRow>[] = [
   { field: "id", headerName: "ID", width: 70 },
   { field: "adrKey", headerName: "AdrKey", width: 140 },
   { field: "ownType", headerName: "Eigentümer-Typ", width: 140 },
   { field: "evtTyp", headerName: "Ereignis", width: 100 },
-  { field: "evtKey", headerName: "EvtKey", width: 120 },
+  // removed: evtKey
   { field: "memberKey", headerName: "MemberKey", width: 120 },
   { field: "member", headerName: "Mitglied", width: 160 },
   { field: "adrKeyMain", headerName: "AdrKeyMain", width: 120 },
-  { field: "adrKeyNew", headerName: "AdrKeyNew", width: 120 },
-  { field: "alternateKey", headerName: "AlternateKey", width: 130 },
-  { field: "proKey", headerName: "ProKey", width: 120 },
+  // removed: adrKeyNew
+  // removed: alternateKey
+  // removed: proKey
   { field: "aDate", headerName: "ADate", width: 110 },
   { field: "origin", headerName: "Quelle", width: 100 },
   { field: "class", headerName: "Klasse", width: 120 },
@@ -92,6 +88,7 @@ const columns: GridColDef<SchadenRow>[] = [
 export const SCHADEN_ROWS = rows;
 
 export default function SchadenPage({ onOpenClaim }: { onOpenClaim: (row: SchadenRow) => void }) {
+  const { t } = useTranslation();
   const [activeView, setActiveView] = useState<SchadenViewKey>("alle");
   const predicate = SCHADEN_VIEWS.find((v) => v.key === activeView)?.predicate ?? (() => true);
   const filteredRows = useMemo(() => rows.filter(predicate), [activeView]);
@@ -100,12 +97,12 @@ export default function SchadenPage({ onOpenClaim }: { onOpenClaim: (row: Schade
     <Box>
       <Paper elevation={0}>
         <Toolbar>
-          <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>Schäden</Typography>
-          <Tooltip title="Spalten"><IconButton><ViewColumnIcon /></IconButton></Tooltip>
-          <Tooltip title="Filtern"><IconButton><FilterListIcon /></IconButton></Tooltip>
-          <Tooltip title="Aktualisieren"><IconButton><RefreshIcon /></IconButton></Tooltip>
-          <Tooltip title="Exportieren"><IconButton><DownloadIcon /></IconButton></Tooltip>
-          <Tooltip title="Mehr"><IconButton><MoreVertIcon /></IconButton></Tooltip>
+          <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>{t("claims.title")}</Typography>
+          <Tooltip title={t("claims.columns")}><IconButton><ViewColumnIcon /></IconButton></Tooltip>
+          <Tooltip title={t("claims.filter")}><IconButton><FilterListIcon /></IconButton></Tooltip>
+          <Tooltip title={t("claims.refresh")}><IconButton><RefreshIcon /></IconButton></Tooltip>
+          <Tooltip title={t("claims.export")}><IconButton><DownloadIcon /></IconButton></Tooltip>
+          <Tooltip title={t("claims.more")}><IconButton><MoreVertIcon /></IconButton></Tooltip>
         </Toolbar>
 
         <Box sx={{ p: 1 }}>
@@ -116,7 +113,7 @@ export default function SchadenPage({ onOpenClaim }: { onOpenClaim: (row: Schade
                 variant={activeView === v.key ? "contained" : "outlined"}
                 onClick={() => setActiveView(v.key)}
               >
-                {v.label}
+                {t(`filters.${v.key}`)}
               </Button>
             ))}
           </ButtonGroup>
@@ -126,9 +123,8 @@ export default function SchadenPage({ onOpenClaim }: { onOpenClaim: (row: Schade
 
         <DataGrid
           rows={filteredRows}
-          columns={columns}
+          columns={SCHADEN_COLUMNS}
           getRowId={(r) => r.id}
-          autoHeight
           pageSizeOptions={[10]}
           disableRowSelectionOnClick
           onRowClick={(params) => onOpenClaim(params.row)}

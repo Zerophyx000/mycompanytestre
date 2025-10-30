@@ -6,7 +6,6 @@ import {
   Card,
   CardContent,
   Divider,
-  Grid,
   IconButton,
   MenuItem,
   Paper,
@@ -17,6 +16,7 @@ import {
   ButtonGroup,
   Button,
   Menu,
+  ListItemButton,
   ListItemText,
   Dialog,
   DialogTitle,
@@ -28,31 +28,27 @@ import {
   List,
   ListItem,
 } from "@mui/material";
+import Grid from "@mui/material/Grid";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import WorkHistoryIcon from "@mui/icons-material/WorkHistory";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import AllInboxIcon from "@mui/icons-material/AllInbox";
 import ViewColumnIcon from "@mui/icons-material/ViewColumn";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import DownloadIcon from "@mui/icons-material/Download";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { DataGrid, type GridColDef } from "@mui/x-data-grid";
-import { type SchadenRow, type SchadenViewKey, SCHADEN_VIEWS } from "./SchadenPage";
+import { DataGrid } from "@mui/x-data-grid";
+import { type SchadenRow, type SchadenViewKey, SCHADEN_VIEWS, SCHADEN_COLUMNS } from "./SchadenPage";
+import { useTranslation } from "react-i18next";
 
 type User = { id: "max" | "anna"; name: string; avatar: string };
 type SavedLayout = { name: string; visibleCols: string[]; filterText: string };
 
 const LAYOUT_KEY = "dashboardLayouts";
-
-const allColumns: GridColDef<SchadenRow>[] = [
-  { field: "id", headerName: "ID", width: 70 },
-  { field: "adrKey", headerName: "AdrKey", width: 140 },
-  { field: "member", headerName: "Mitglied", width: 160 },
-  { field: "status", headerName: "Status", width: 120 },
-  { field: "origin", headerName: "Quelle", width: 120 },
-];
+// Width big enough to fit all Schaden columns; tweak if you add more columns
+const MIN_TABLE_WIDTH = 1500;
 
 export default function DashboardLite({
   user,
@@ -65,8 +61,10 @@ export default function DashboardLite({
   recentSchadens: SchadenRow[];
   onOpenClaim: (row: SchadenRow) => void;
 }) {
+  const { t } = useTranslation();
+
   const [activeView, setActiveView] = useState<SchadenViewKey>("alle");
-  const [visibleCols, setVisibleCols] = useState<string[]>(allColumns.map((c) => c.field));
+  const [visibleCols, setVisibleCols] = useState<string[]>(SCHADEN_COLUMNS.map((c) => c.field));
   const [filterText, setFilterText] = useState("");
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -100,7 +98,7 @@ export default function DashboardLite({
   );
 
   const handleExportCSV = () => {
-    const usedCols = allColumns.filter((c) => visibleCols.includes(c.field));
+    const usedCols = SCHADEN_COLUMNS.filter((c) => visibleCols.includes(c.field));
     const csv = [
       usedCols.map((c) => c.headerName).join(","),
       ...filteredRows.map((r) =>
@@ -119,7 +117,7 @@ export default function DashboardLite({
   };
 
   const handleSaveLayout = () => {
-    const name = window.prompt("Layoutname eingeben:");
+    const name = window.prompt(t("dashboard.saveLayoutPrompt"));
     if (!name) return;
     const withoutSame = savedLayouts.filter((l) => l.name !== name);
     const newLayouts = [{ name, visibleCols, filterText }, ...withoutSame];
@@ -127,17 +125,17 @@ export default function DashboardLite({
   };
 
   const handleResetLayout = () => {
-    setVisibleCols(allColumns.map((c) => c.field));
+    setVisibleCols(SCHADEN_COLUMNS.map((c) => c.field));
     setFilterText("");
   };
 
-  const columns = allColumns.filter((c) => visibleCols.includes(c.field));
+  const columns = SCHADEN_COLUMNS.filter((c) => visibleCols.includes(c.field));
 
   return (
     <Box>
       <AppBar position="static" color="transparent" elevation={0}>
         <Toolbar>
-          <Typography variant="h6">Dashboard</Typography>
+          <Typography variant="h6">{t("dashboard.title")}</Typography>
           <Box sx={{ flexGrow: 1 }} />
           <Select
             size="small"
@@ -145,8 +143,8 @@ export default function DashboardLite({
             onChange={(e) => onSwitchUser(e.target.value as "max" | "anna")}
             sx={{ mr: 2, minWidth: 150 }}
           >
-            <MenuItem value="max">Max Mustermann</MenuItem>
-            <MenuItem value="anna">Anna Admin</MenuItem>
+            <MenuItem value="max">{t("users.max")}</MenuItem>
+            <MenuItem value="anna">{t("users.anna")}</MenuItem>
           </Select>
           <Avatar sx={{ ml: 1 }}>{user.avatar}</Avatar>
           <Typography variant="body2" sx={{ ml: 1 }}>{user.name}</Typography>
@@ -154,82 +152,92 @@ export default function DashboardLite({
       </AppBar>
 
       <Box sx={{ p: 2 }}>
-        <Typography variant="subtitle2" color="text.secondary">Sachschaden • Schadensachbearbeiter</Typography>
-        <Typography variant="h6" sx={{ mt: 1, mb: 2 }}>Mein Dashboard</Typography>
+        <Typography variant="subtitle2" color="text.secondary">
+          {t("dashboard.subtitle")}
+        </Typography>
+        <Typography variant="h6" sx={{ mt: 1, mb: 2 }}>
+          {t("dashboard.myDashboard")}
+        </Typography>
 
         <Card>
           <CardContent>
-            <Typography variant="subtitle1">Übersicht</Typography>
+            <Typography variant="subtitle1">{t("dashboard.overview")}</Typography>
             <Grid container spacing={2} columns={5} sx={{ mt: 1 }}>
-              <Grid xs={5} lg={1}><OverviewCard icon={<InfoOutlinedIcon />} label="Offene Fälle" value="—" /></Grid>
-              <Grid xs={5} lg={1}><OverviewCard icon={<ScheduleIcon />} label="Anstehende Fälle" value="—" /></Grid>
-              <Grid xs={5} lg={1}><OverviewCard icon={<WorkHistoryIcon />} label="In Bearbeitung" value="—" /></Grid>
-              <Grid xs={5} lg={1}><OverviewCard icon={<CheckCircleOutlineIcon />} label="Abgeschlossen" value="—" /></Grid>
-              <Grid xs={5} lg={1}><OverviewCard icon={<AllInboxIcon />} label="Gesamt Fälle" value="—" /></Grid>
+              <Grid><OverviewCard icon={<InfoOutlinedIcon />} label={t("overview.open")} value="—" /></Grid>
+              <Grid><OverviewCard icon={<ScheduleIcon />} label={t("overview.upcoming")} value="—" /></Grid>
+              <Grid><OverviewCard icon={<WorkHistoryIcon />} label={t("overview.inProgress")} value="—" /></Grid>
+              <Grid><OverviewCard icon={<CheckCircleOutlineIcon />} label={t("overview.closed")} value="—" /></Grid>
+              <Grid><OverviewCard icon={<AllInboxIcon />} label={t("overview.total")} value="—" /></Grid>
             </Grid>
           </CardContent>
         </Card>
 
+        {/* === Scrollable Recent Claims section === */}
         <Paper elevation={0} sx={{ mt: 3 }}>
-          <Toolbar>
-            <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>Letzte Schäden</Typography>
-            <Tooltip title="Spalten">
-              <IconButton onClick={() => setOpenColumns(true)}><ViewColumnIcon /></IconButton>
-            </Tooltip>
-            <Tooltip title="Filtern">
-              <IconButton onClick={() => setOpenFilter(true)}><FilterListIcon /></IconButton>
-            </Tooltip>
-            <Tooltip title="Exportieren">
-              <IconButton onClick={handleExportCSV}><DownloadIcon /></IconButton>
-            </Tooltip>
-            <Tooltip title="Mehr">
-              <IconButton onClick={(e) => setAnchorEl(e.currentTarget)}><MoreVertIcon /></IconButton>
-            </Tooltip>
-            <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
-              <MenuItem onClick={() => { handleSaveLayout(); setAnchorEl(null); }}>
-                Layout speichern
-              </MenuItem>
-              <MenuItem onClick={() => { setOpenLoad(true); setAnchorEl(null); }}>
-                Layout laden
-              </MenuItem>
-              <MenuItem onClick={() => { handleResetLayout(); setAnchorEl(null); }}>
-                Layout zurücksetzen
-              </MenuItem>
-            </Menu>
-          </Toolbar>
+          {/* Outer horizontal scroll container */}
+          <Box sx={{ width: "100%", overflowX: "auto" }}>
+            {/* Inner width ensures toolbar + grid can be scrolled into view */}
+            <Box sx={{ minWidth: MIN_TABLE_WIDTH }}>
+              <Toolbar sx={{ px: 1 }}>
+                <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
+                  {t("dashboard.recentClaims")}
+                </Typography>
+                <Tooltip title={t("dashboard.columns")}><IconButton onClick={() => setOpenColumns(true)}><ViewColumnIcon /></IconButton></Tooltip>
+                <Tooltip title={t("dashboard.filter")}><IconButton onClick={() => setOpenFilter(true)}><FilterListIcon /></IconButton></Tooltip>
+                <Tooltip title={t("dashboard.export")}><IconButton onClick={handleExportCSV}><DownloadIcon /></IconButton></Tooltip>
+                <Tooltip title={t("dashboard.more")}><IconButton onClick={(e) => setAnchorEl(e.currentTarget)}><MoreVertIcon /></IconButton></Tooltip>
+                <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
+                  <MenuItem onClick={() => { handleSaveLayout(); setAnchorEl(null); }}>
+                    {t("dashboard.saveLayout")}
+                  </MenuItem>
+                  <MenuItem onClick={() => { setOpenLoad(true); setAnchorEl(null); }}>
+                    {t("dashboard.loadLayout")}
+                  </MenuItem>
+                  <MenuItem onClick={() => { handleResetLayout(); setAnchorEl(null); }}>
+                    {t("dashboard.resetLayout")}
+                  </MenuItem>
+                </Menu>
+              </Toolbar>
 
-          <Box sx={{ p: 1 }}>
-            <ButtonGroup size="small" variant="outlined" sx={{ flexWrap: "wrap", gap: 1 }}>
-              {SCHADEN_VIEWS.map((v) => (
-                <Button
-                  key={v.key}
-                  variant={activeView === v.key ? "contained" : "outlined"}
-                  onClick={() => setActiveView(v.key)}
-                >
-                  {v.label}
-                </Button>
-              ))}
-            </ButtonGroup>
+              <Box sx={{ p: 1 }}>
+                <ButtonGroup size="small" variant="outlined" sx={{ flexWrap: "wrap", gap: 1 }}>
+                  {SCHADEN_VIEWS.map((v) => (
+                    <Button
+                      key={v.key}
+                      variant={activeView === v.key ? "contained" : "outlined"}
+                      onClick={() => setActiveView(v.key)}
+                    >
+                      {t(`filters.${v.key}`)}
+                    </Button>
+                  ))}
+                </ButtonGroup>
+              </Box>
+
+              <Divider />
+
+              <DataGrid
+                rows={filteredRows}
+                columns={columns}
+                autoHeight
+                hideFooterPagination
+                disableRowSelectionOnClick
+                onRowClick={(params) => onOpenClaim(params.row)}
+                getRowId={(r) => r.id}
+                // make sure the grid itself doesn't force-hide overflow
+                sx={{
+                  "& .MuiDataGrid-virtualScroller": { overflowX: "hidden" },
+                }}
+              />
+            </Box>
           </Box>
-
-          <Divider />
-          <DataGrid
-            rows={filteredRows}
-            columns={columns}
-            autoHeight
-            hideFooterPagination
-            disableRowSelectionOnClick
-            onRowClick={(params) => onOpenClaim(params.row)}
-            getRowId={(r) => r.id}
-          />
         </Paper>
       </Box>
 
       <Dialog open={openColumns} onClose={() => setOpenColumns(false)}>
-        <DialogTitle>Spalten auswählen</DialogTitle>
+        <DialogTitle>{t("dashboard.selectColumns")}</DialogTitle>
         <DialogContent>
           <FormGroup>
-            {allColumns.map((c) => (
+            {SCHADEN_COLUMNS.map((c) => (
               <FormControlLabel
                 key={c.field}
                 control={
@@ -252,49 +260,55 @@ export default function DashboardLite({
       </Dialog>
 
       <Dialog open={openFilter} onClose={() => setOpenFilter(false)}>
-        <DialogTitle>Filtern nach Mitglied</DialogTitle>
+        <DialogTitle>{t("dashboard.filterByMember")}</DialogTitle>
         <DialogContent>
           <TextField
             fullWidth
             value={filterText}
             onChange={(e) => setFilterText(e.target.value)}
-            placeholder="Mitglied eingeben..."
+            placeholder={t("dashboard.enterMember") ?? ""}
           />
         </DialogContent>
       </Dialog>
 
       <Dialog open={openLoad} onClose={() => setOpenLoad(false)} fullWidth maxWidth="sm">
-        <DialogTitle>Layouts laden</DialogTitle>
+        <DialogTitle>{t("dashboard.loadLayouts")}</DialogTitle>
         <DialogContent dividers sx={{ maxHeight: 360, overflow: "auto", p: 0 }}>
           <List>
             {savedLayouts.length === 0 && (
               <ListItem>
-                <ListItemText primary="Keine gespeicherten Layouts" />
+                <ListItemText primary={t("dashboard.noLayouts")} />
               </ListItem>
             )}
+
             {savedLayouts.map((l) => (
-              <ListItem
-                key={l.name}
+              <ListItem key={l.name} disablePadding
                 secondaryAction={
-                  <IconButton edge="end" aria-label="delete" onClick={() => {
-                    const next = savedLayouts.filter((x) => x.name !== l.name);
-                    persistLayouts(next);
-                  }}>
+                  <IconButton
+                    edge="end"
+                    aria-label={t("dashboard.delete")}
+                    onClick={() => {
+                      const next = savedLayouts.filter((x) => x.name !== l.name);
+                      setSavedLayouts(next);
+                      localStorage.setItem(LAYOUT_KEY, JSON.stringify(next));
+                    }}
+                  >
                     <DeleteOutlineIcon />
                   </IconButton>
                 }
-                button
-                onClick={() => {
-                  setVisibleCols(l.visibleCols);
-                  setFilterText(l.filterText);
-                  setOpenLoad(false);
-                }}
               >
-                <CheckCircleOutlineIcon fontSize="small" style={{ marginRight: 8 }} />
-                <ListItemText
-                  primary={l.name}
-                  secondary={`Spalten: ${l.visibleCols.length} • Filter: ${l.filterText ? `"${l.filterText}"` : "—"}`}
-                />
+                <ListItemButton
+                  onClick={() => {
+                    setVisibleCols(l.visibleCols);
+                    setFilterText(l.filterText);
+                    setOpenLoad(false);
+                  }}
+                >
+                  <ListItemText
+                    primary={l.name}
+                    secondary={`${t("dashboard.columns")}: ${l.visibleCols.length} • ${t("dashboard.filter")}: ${l.filterText ? `"${l.filterText}"` : "—"}`}
+                  />
+                </ListItemButton>
               </ListItem>
             ))}
           </List>
