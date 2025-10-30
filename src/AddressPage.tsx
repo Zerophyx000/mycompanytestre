@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useState, useMemo } from "react";
+
 import {
   Box,
   Paper,
@@ -18,6 +19,7 @@ import {
   MenuItem,
   ButtonGroup,
 } from "@mui/material";
+
 import {
   Home as HomeIcon,
   People as PeopleIcon,
@@ -27,6 +29,7 @@ import {
   Person as PersonIcon,
   KeyboardArrowDown as ArrowDownIcon,
 } from "@mui/icons-material";
+
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import type { GridColDef, GridRowParams } from "@mui/x-data-grid";
 
@@ -149,7 +152,7 @@ type Props = {
 
 export default function AddressPage({ onOpenAddress }: Props) {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [activeFilter, setActiveFilter] = useState("alle");
 
   const navigateToHome = () => {
@@ -250,204 +253,187 @@ export default function AddressPage({ onOpenAddress }: Props) {
   return (
     <>
       <CssBaseline />
-      <Box sx={{ minHeight: "100vh", bgcolor: "background.default", p: 3 }}>
+      <Box sx={{ p: 3 }}>
         <Breadcrumbs sx={{ mb: 2 }}>
           <Link
-            underline="hover"
             color="inherit"
-            href="#"
             onClick={navigateToHome}
-            sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+            sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
           >
-            <HomeIcon fontSize="small" />
+            <HomeIcon sx={{ mr: 0.5 }} fontSize="small" />
             Dashboard
           </Link>
-          <Typography color="text.primary" sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-            <PeopleIcon fontSize="small" />
+          <Typography color="text.primary" sx={{ display: 'flex', alignItems: 'center' }}>
+            <PeopleIcon sx={{ mr: 0.5 }} fontSize="small" />
             Adressen
           </Typography>
         </Breadcrumbs>
 
-        <Paper elevation={0} sx={{ p: 3, border: "1px solid", borderColor: "divider" }}>
-          <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-            <Box>
-              <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <PeopleIcon /> Adressen
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Kontakte und Adressen verwalten
-              </Typography>
-            </Box>
-            <Button
-              variant="contained"
-              onClick={() => setIsCreateDialogOpen(true)}
-              startIcon={<PersonAddIcon />}
-              size="large"
-            >
-              Neue Adresse
-            </Button>
-          </Stack>
+        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+          <Box>
+            <Typography variant="h4" component="h1" gutterBottom>
+              Adressen
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Kontakte und Adressen verwalten
+            </Typography>
+          </Box>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => setIsCreateDialogOpen(true)}
+            startIcon={<PersonAddIcon />}
+            size="large"
+          >
+            Neue Adresse
+          </Button>
+        </Stack>
 
-          <Box
+        {addressData.length === 0 && (
+          <Stack
+            direction="row"
+            alignItems="center"
+            spacing={1}
             sx={{
-              bgcolor: "info.light",
-              color: "info.contrastText",
-              p: 1.5,
-              borderRadius: 1,
-              mb: 2
+              mb: 2,
+              p: 2,
+              bgcolor: 'info.lighter',
+              borderRadius: 1
             }}
           >
+            <PersonAddIcon fontSize="small" />
             <Typography variant="body2">
-              <strong>Schnellaktion verfügbar: Neue Adresse hinzufügen</strong>
+              Schnellaktion verfügbar: Neue Adresse hinzufügen
             </Typography>
-            <Typography variant="caption">
+            <Typography variant="caption" sx={{ ml: 'auto' }}>
               Klicken Sie auf "Neue Adresse" um loszulegen
             </Typography>
-          </Box>
+          </Stack>
+        )}
 
-          {/* Button Group for filtering */}
-          <Box sx={{ mb: 2 }}>
-            <ButtonGroup>
-              {filterOptions.map((option) => (
-                <Button
-                  key={option.key}
-                  variant={activeFilter === option.key ? "contained" : "outlined"}
-                  className={activeFilter === option.key ? "Mui-selected" : ""}
-                  onClick={() => setActiveFilter(option.key)}
-                >
-                  {option.label}
-                </Button>
-              ))}
-            </ButtonGroup>
-          </Box>
+        {/* Button Group for filtering */}
+        <ButtonGroup variant="outlined" sx={{ mb: 2 }}>
+          {filterOptions.map((option) => (
+            <Button
+              key={option.key}
+              variant={activeFilter === option.key ? "contained" : "outlined"}
+              onClick={() => setActiveFilter(option.key)}
+            >
+              {option.label}
+            </Button>
+          ))}
+        </ButtonGroup>
 
-          {/* FIXED: Responsive DataGrid, never overflows! */}
-          <Box sx={{ width: "100%", height: 500 }}>
+        <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+          <Box sx={{ height: 600, width: '100%' }}>
             <DataGrid
               rows={filteredAddressData}
               columns={columns}
-              pageSizeOptions={[5, 10, 25]}
-              initialState={{
-                pagination: { paginationModel: { pageSize: 10 } }
-              }}
-              disableRowSelectionOnClick
-              slots={{ toolbar: GridToolbar }}
-              slotProps={{
-                toolbar: {
-                  showQuickFilter: true,
-                }
-              }}
               onRowClick={handleRowClick}
+              slots={{ toolbar: GridToolbar }}
               sx={{
-                border: "none",
-                "& .MuiDataGrid-cell:focus": {
-                  outline: "none"
-                },
-                "& .MuiDataGrid-row:hover": {
-                  cursor: "pointer"
+                border: 'none',
+                '& .MuiDataGrid-row:hover': {
+                  cursor: 'pointer'
                 }
               }}
             />
           </Box>
         </Paper>
+      </Box>
 
-        <Dialog
-          open={isCreateDialogOpen}
-          onClose={handleCloseDialog}
-          maxWidth="sm"
-          fullWidth
-        >
-          <DialogTitle>
-            <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Typography variant="h6" fontWeight="bold">
-                Neue Adresse erstellen
-              </Typography>
-              <IconButton onClick={handleCloseDialog} size="small">
-                <CloseIcon />
-              </IconButton>
-            </Box>
-            <Typography variant="body2" color="text.secondary" mt={1}>
-              Erstellen Sie einen neuen Kontakt oder eine neue Adresse im System.
-            </Typography>
-          </DialogTitle>
-          <DialogContent>
-            <Stack spacing={2} mt={1}>
-              <Box>
-                <Typography variant="body2" fontWeight="medium" mb={1}>
-                  Adresstyp *
-                </Typography>
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  endIcon={<ArrowDownIcon />}
-                  onClick={handleMenuOpen}
-                  sx={{ justifyContent: "space-between" }}
-                >
-                  {!addressType
-                    ? "Typ auswählen..."
-                    : addressType === 'person'
-                    ? 'Person'
-                    : 'Unternehmen'
-                  }
-                </Button>
-                <Menu
-                  anchorEl={anchorEl}
-                  open={Boolean(anchorEl)}
-                  onClose={handleMenuClose}
-                >
-                  <MenuItem onClick={() => handleTypeSelect('person')}>
-                    <PersonIcon fontSize="small" sx={{ mr: 1 }} /> Person
-                  </MenuItem>
-                  <MenuItem onClick={() => handleTypeSelect('unternehmen')}>
-                    <BusinessIcon fontSize="small" sx={{ mr: 1 }} /> Unternehmen
-                  </MenuItem>
-                </Menu>
-              </Box>
+      <Dialog
+        open={isCreateDialogOpen}
+        onClose={handleCloseDialog}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          <Stack direction="row" justifyContent="space-between" alignItems="center">
+            <Typography variant="h6">Neue Adresse erstellen</Typography>
+            <IconButton onClick={handleCloseDialog} size="small">
+              <CloseIcon />
+            </IconButton>
+          </Stack>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            Erstellen Sie einen neuen Kontakt oder eine neue Adresse im System.
+          </Typography>
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+            <Typography variant="subtitle2">Adresstyp *</Typography>
+            <Button
+              variant="outlined"
+              endIcon={<ArrowDownIcon />}
+              onClick={handleMenuOpen}
+              sx={{ justifyContent: "space-between" }}
+            >
+              {!addressType
+                ? "Typ auswählen..."
+                : addressType === 'person'
+                ? 'Person'
+                : 'Unternehmen'
+              }
+            </Button>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+            >
+              <MenuItem onClick={() => handleTypeSelect('person')}>
+                <PersonIcon sx={{ mr: 1 }} /> Person
+              </MenuItem>
+              <MenuItem onClick={() => handleTypeSelect('unternehmen')}>
+                <BusinessIcon sx={{ mr: 1 }} /> Unternehmen
+              </MenuItem>
+            </Menu>
 
-              {addressType && (
-                <>
-                  {addressType === 'unternehmen' ? (
+            {addressType && (
+              <>
+                {addressType === 'unternehmen' ? (
+                  <TextField
+                    label="Firmenname *"
+                    fullWidth
+                    value={formData.firmenname}
+                    onChange={(e) => handleInputChange('firmenname', e.target.value)}
+                  />
+                ) : (
+                  <>
                     <TextField
-                      label="Firmenname *"
+                      label="Vorname *"
                       fullWidth
-                      value={formData.firmenname}
-                      onChange={(e) => handleInputChange('firmenname', e.target.value)}
+                      value={formData.vorname}
+                      onChange={(e) => handleInputChange('vorname', e.target.value)}
                     />
-                  ) : (
-                    <>
-                      <TextField
-                        label="Vorname *"
-                        fullWidth
-                        value={formData.vorname}
-                        onChange={(e) => handleInputChange('vorname', e.target.value)}
-                      />
-                      <TextField
-                        label="Nachname *"
-                        fullWidth
-                        value={formData.nachname}
-                        onChange={(e) => handleInputChange('nachname', e.target.value)}
-                      />
-                    </>
-                  )}
-                  <TextField
-                    label="E-Mail *"
-                    type="email"
-                    fullWidth
-                    value={formData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
-                  />
-                  <TextField
-                    label="Telefon"
-                    fullWidth
-                    value={formData.telefon}
-                    onChange={(e) => handleInputChange('telefon', e.target.value)}
-                  />
-                  <TextField
-                    label="Strasse"
-                    fullWidth
-                    value={formData.strasse}
-                    onChange={(e) => handleInputChange('strasse', e.target.value)}
-                  />
+                    <TextField
+                      label="Nachname *"
+                      fullWidth
+                      value={formData.nachname}
+                      onChange={(e) => handleInputChange('nachname', e.target.value)}
+                    />
+                  </>
+                )}
+
+                <TextField
+                  label="E-Mail"
+                  type="email"
+                  fullWidth
+                  value={formData.email}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                />
+                <TextField
+                  label="Telefon"
+                  fullWidth
+                  value={formData.telefon}
+                  onChange={(e) => handleInputChange('telefon', e.target.value)}
+                />
+                <TextField
+                  label="Strasse"
+                  fullWidth
+                  value={formData.strasse}
+                  onChange={(e) => handleInputChange('strasse', e.target.value)}
+                />
+                <Stack direction="row" spacing={2}>
                   <TextField
                     label="PLZ"
                     fullWidth
@@ -460,39 +446,35 @@ export default function AddressPage({ onOpenAddress }: Props) {
                     value={formData.stadt}
                     onChange={(e) => handleInputChange('stadt', e.target.value)}
                   />
-                  <TextField
-                    label="Land"
-                    fullWidth
-                    value={formData.land}
-                    onChange={(e) => handleInputChange('land', e.target.value)}
-                  />
-                  <TextField
-                    label="Notizen"
-                    fullWidth
-                    multiline
-                    rows={3}
-                    value={formData.notizen}
-                    onChange={(e) => handleInputChange('notizen', e.target.value)}
-                  />
-                </>
-              )}
+                </Stack>
+                <TextField
+                  label="Land"
+                  fullWidth
+                  value={formData.land}
+                  onChange={(e) => handleInputChange('land', e.target.value)}
+                />
+                <TextField
+                  label="Notizen"
+                  multiline
+                  rows={3}
+                  fullWidth
+                  value={formData.notizen}
+                  onChange={(e) => handleInputChange('notizen', e.target.value)}
+                />
+              </>
+            )}
 
-              <Stack direction="row" spacing={2} justifyContent="flex-end" mt={2}>
-                <Button variant="outlined" onClick={handleCloseDialog}>
-                  Abbrechen
-                </Button>
-                <Button
-                  variant="contained"
-                  onClick={handleSubmit}
-                  disabled={!addressType}
-                >
-                  Adresse erstellen
-                </Button>
-              </Stack>
+            <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
+              <Button onClick={handleCloseDialog} variant="outlined" fullWidth>
+                Abbrechen
+              </Button>
+              <Button onClick={handleSubmit} variant="contained" fullWidth>
+                Adresse erstellen
+              </Button>
             </Stack>
-          </DialogContent>
-        </Dialog>
-      </Box>
+          </Box>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
