@@ -47,7 +47,6 @@ type User = { id: "max" | "anna"; name: string; avatar: string };
 type SavedLayout = { name: string; visibleCols: string[]; filterText: string };
 
 const LAYOUT_KEY = "dashboardLayouts";
-// Width big enough to fit all Schaden columns; tweak if you add more columns
 const MIN_TABLE_WIDTH = 1500;
 
 export default function DashboardLite({
@@ -171,12 +170,8 @@ export default function DashboardLite({
             </Grid>
           </CardContent>
         </Card>
-
-        {/* === Scrollable Recent Claims section === */}
         <Paper elevation={0} sx={{ mt: 3 }}>
-          {/* Outer horizontal scroll container */}
           <Box sx={{ width: "100%", overflowX: "auto" }}>
-            {/* Inner width ensures toolbar + grid can be scrolled into view */}
             <Box sx={{ minWidth: MIN_TABLE_WIDTH }}>
               <Toolbar sx={{ px: 1 }}>
                 <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
@@ -223,7 +218,6 @@ export default function DashboardLite({
                 disableRowSelectionOnClick
                 onRowClick={(params) => onOpenClaim(params.row)}
                 getRowId={(r) => r.id}
-                // make sure the grid itself doesn't force-hide overflow
                 sx={{
                   "& .MuiDataGrid-virtualScroller": { overflowX: "hidden" },
                 }}
