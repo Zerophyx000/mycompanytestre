@@ -254,256 +254,250 @@ export default function AddressPage({ onOpenAddress }: Props) {
   };
 
   return (
-    <>
-      <CssBaseline />
-      <Box component="main" minHeight="100vh" display="flex" flexDirection="column">
-        <Box px={3} pt={2} pb={1}>
-          <Breadcrumbs aria-label="breadcrumb">
-            <Link
-              component="button"
-              variant="body2"
-              onClick={navigateToHome}
-              underline="hover"
-              display="flex"
-              alignItems="center"
-              gap={1}
-            >
-              <HomeIcon fontSize="small" />
-              {t("address.breadcrumb.dashboard")}
-            </Link>
-            <Stack direction="row" alignItems="center" spacing={1}>
-              <PeopleIcon fontSize="small" />
-              <Typography variant="body2">{t("address.breadcrumb.addresses")}</Typography>
-            </Stack>
-          </Breadcrumbs>
-        </Box>
-
-        <Box px={3} pb={2}>
-          <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
-            <Stack direction="row" alignItems="center" spacing={2}>
-              <PeopleIcon fontSize="large" />
-              <Box>
-                <Typography variant="h4" component="h1" fontWeight="bold">
-                  {t("address.header.title")}
-                </Typography>
-                <Typography variant="body2">
-                  {t("address.header.subtitle")}
-                </Typography>
-              </Box>
-            </Stack>
-            <Button
-              variant="contained"
-              onClick={() => setIsCreateDialogOpen(true)}
-              startIcon={<PersonAddIcon />}
-              size="large"
-            >
-              {t("address.actions.new")}
-            </Button>
+  <div>
+    <CssBaseline />
+    <Box component="main" minHeight="100vh" display="flex" flexDirection="column">
+      <Box px={3} pt={2} pb={1}>
+        <Breadcrumbs aria-label="breadcrumb">
+          <Link
+            component="button"
+            variant="body2"
+            onClick={navigateToHome}
+            underline="hover"
+            display="flex"
+            alignItems="center"
+            gap={1}
+          >
+            <HomeIcon fontSize="small" />
+            {t("address.breadcrumb.dashboard")}
+          </Link>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <PeopleIcon fontSize="small" />
+            <Typography variant="body2">{t("address.breadcrumb.addresses")}</Typography>
           </Stack>
-          <Stack direction="row" alignItems="center" spacing={1} mb={2}>
-            <PersonAddIcon fontSize="small" />
-            <Typography variant="body2">{t("address.quick.add")}</Typography>
-            <Typography variant="caption" ml="auto">{t("address.quick.hint")}</Typography>
-          </Stack>
-        )}
-
-        {/* Button Group for filtering */}
-        <ButtonGroup variant="outlined" sx={{ mb: 2 }}>
-          {filterOptions.map((option) => (
-            <Button
-              key={option.key}
-              variant={activeFilter === option.key ? "contained" : "outlined"}
-              onClick={() => setActiveFilter(option.key)}
-            >
-              {option.label}
-            </Button>
-          ))}
-        </ButtonGroup>
-
-        <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-          <Box sx={{ height: 600, width: '100%' }}>
-            <DataGrid
-              rows={filteredAddressData}
-              columns={columns}
-              onRowClick={handleRowClick}
-              slots={{ toolbar: GridToolbar }}
-              sx={{
-                border: 'none',
-                '& .MuiDataGrid-row:hover': {
-                  cursor: 'pointer'
-                }
-              }}
-            />
-          </Box>
-        </Paper>
+        </Breadcrumbs>
       </Box>
 
-      <Dialog
-        open={isCreateDialogOpen}
-        onClose={handleCloseDialog}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>
-          <Stack direction="row" justifyContent="space-between" alignItems="center">
-            <Typography variant="h6">Neue Adresse erstellen</Typography>
-            <IconButton onClick={handleCloseDialog} size="small">
-              <CloseIcon />
-            </IconButton>
+      <Box px={3} pb={2}>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <PeopleIcon fontSize="large" />
+            <Box>
+              <Typography variant="h4" component="h1" fontWeight="bold">
+                {t("address.header.title")}
+              </Typography>
+              <Typography variant="body2">
+                {t("address.header.subtitle")}
+              </Typography>
+            </Box>
           </Stack>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            Erstellen Sie einen neuen Kontakt oder eine neue Adresse im System.
-          </Typography>
-        </DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
-            <Typography variant="subtitle2">Adresstyp *</Typography>
-            <Button
-              variant="outlined"
-              endIcon={<ArrowDownIcon />}
-              onClick={handleMenuOpen}
-              sx={{ justifyContent: "space-between" }}
-            >
-              {!addressType
-                ? "Typ auswählen..."
-                : addressType === 'person'
-                ? 'Person'
-                : 'Unternehmen'
+          <Button
+            variant="contained"
+            onClick={() => setIsCreateDialogOpen(true)}
+            startIcon={<PersonAddIcon />}
+            size="large"
+          >
+            {t("address.actions.new")}
+          </Button>
+        </Stack>
+        <Stack direction="row" alignItems="center" spacing={1} mb={2}>
+          <PersonAddIcon fontSize="small" />
+          <Typography variant="body2">{t("address.quick.add")}</Typography>
+          <Typography variant="caption" ml="auto">{t("address.quick.hint")}</Typography>
+        </Stack>
+      </Box>
+
+      {/* Button Group for filtering */}
+      <ButtonGroup variant="outlined" sx={{ mb: 2 }}>
+        {filterOptions.map((option) => (
+          <Button
+            key={option.key}
+            variant={activeFilter === option.key ? "contained" : "outlined"}
+            onClick={() => setActiveFilter(option.key)}
+          >
+            {option.label}
+          </Button>
+        ))}
+      </ButtonGroup>
+
+      <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+        <Box sx={{ height: 600, width: '100%' }}>
+          <DataGrid
+            rows={filteredAddressData}
+            columns={columns}
+            onRowClick={handleRowClick}
+            slots={{ toolbar: GridToolbar }}
+            sx={{
+              border: 'none',
+              '& .MuiDataGrid-row:hover': {
+                cursor: 'pointer'
               }
-            </Button>
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-            >
-              <MenuItem onClick={() => handleTypeSelect('person')}>
-                <PersonIcon sx={{ mr: 1 }} /> Person
-              </MenuItem>
-              <MenuItem onClick={() => handleTypeSelect('unternehmen')}>
-                <BusinessIcon sx={{ mr: 1 }} /> Unternehmen
-              </MenuItem>
-            </Menu>
+            }}
+          />
+        </Box>
+      </Paper>
+    </Box>
 
-            {addressType && (
-              <>
-                {addressType === 'unternehmen' ? (
+    <Dialog
+      open={isCreateDialogOpen}
+      onClose={handleCloseDialog}
+      maxWidth="sm"
+      fullWidth
+    >
+      <DialogTitle>
+        <Stack direction="row" justifyContent="space-between" alignItems="center">
+          <Typography variant="h6">Neue Adresse erstellen</Typography>
+          <IconButton onClick={handleCloseDialog} size="small">
+            <CloseIcon />
+          </IconButton>
+        </Stack>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+          Erstellen Sie einen neuen Kontakt oder eine neue Adresse im System.
+        </Typography>
+      </DialogTitle>
+      <DialogContent>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+          <Typography variant="subtitle2">Adresstyp *</Typography>
+          <Button
+            variant="outlined"
+            endIcon={<ArrowDownIcon />}
+            onClick={handleMenuOpen}
+            sx={{ justifyContent: "space-between" }}
+          >
+            {!addressType
+              ? "Typ auswählen..."
+              : addressType === 'person'
+              ? 'Person'
+              : 'Unternehmen'
+            }
+          </Button>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleMenuClose}
+          >
+            <MenuItem onClick={() => handleTypeSelect('person')}>
+              <PersonIcon sx={{ mr: 1 }} /> Person
+            </MenuItem>
+            <MenuItem onClick={() => handleTypeSelect('unternehmen')}>
+              <BusinessIcon sx={{ mr: 1 }} /> Unternehmen
+            </MenuItem>
+          </Menu>
+
+          {addressType && (
+            <>
+              {addressType === 'unternehmen' ? (
+                <TextField
+                  label="Firmenname *"
+                  fullWidth
+                  value={formData.firmenname}
+                  onChange={(e) => handleInputChange('firmenname', e.target.value)}
+                />
+              ) : (
+                <>
                   <TextField
-                    label="Firmenname *"
+                    label="Vorname *"
                     fullWidth
-                    value={formData.firmenname}
-                    onChange={(e) => handleInputChange('firmenname', e.target.value)}
+                    value={formData.vorname}
+                    onChange={(e) => handleInputChange('vorname', e.target.value)}
                   />
-                ) : (
-                  <>
-                    <TextField
-                      label="Vorname *"
-                      fullWidth
-                      value={formData.vorname}
-                      onChange={(e) => handleInputChange('vorname', e.target.value)}
-                    />
-                    <TextField
-                      fullWidth
-                      label={t("address.form.lastName") + " *"}
-                      placeholder={t("address.form.lastNamePh") ?? ""}
-                      value={formData.nachname}
-                      onChange={(e) => handleInputChange('nachname', e.target.value)}
-                    />
-                  </>
-                )}
+                  <TextField
+                    fullWidth
+                    label={t("address.form.lastName") + " *"}
+                    placeholder={t("address.form.lastNamePh") ?? ""}
+                    value={formData.nachname}
+                    onChange={(e) => handleInputChange('nachname', e.target.value)}
+                  />
+                </>
+              )}
 
+              <TextField
+                label="E-Mail"
+                type="email"
+                fullWidth
+                value={formData.email}
+                onChange={(e) => handleInputChange('email', e.target.value)}
+              />
+              <TextField
+                label="Telefon"
+                fullWidth
+                value={formData.telefon}
+                onChange={(e) => handleInputChange('telefon', e.target.value)}
+              />
+              <TextField
+                label="Strasse"
+                fullWidth
+                value={formData.strasse}
+                onChange={(e) => handleInputChange('strasse', e.target.value)}
+              />
+              <Stack direction="row" spacing={2}>
                 <TextField
-                  label="E-Mail"
+                  fullWidth
+                  label={t("address.form.email")}
                   type="email"
-                  fullWidth
+                  placeholder="beispiel@email.com"
                   value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  onChange={e => handleInputChange('email', e.target.value)}
                 />
                 <TextField
-                  label="Telefon"
                   fullWidth
+                  label={t("address.form.phone")}
+                  type="tel"
+                  placeholder="+41 XX XXX XX XX"
                   value={formData.telefon}
-                  onChange={(e) => handleInputChange('telefon', e.target.value)}
+                  onChange={e => handleInputChange('telefon', e.target.value)}
                 />
+              </Stack>
+              <Stack spacing={2}>
                 <TextField
-                  label="Strasse"
                   fullWidth
+                  label={t("address.form.street")}
                   value={formData.strasse}
-                  onChange={(e) => handleInputChange('strasse', e.target.value)}
+                  onChange={e => handleInputChange('strasse', e.target.value)}
                 />
                 <Stack direction="row" spacing={2}>
                   <TextField
-                    label="PLZ"
-                    fullWidth
-                    label={t("address.form.email")}
-                    type="email"
-                    placeholder="beispiel@email.com"
-                    value={formData.email}
-                    onChange={e => handleInputChange('email', e.target.value)}
+                    label={t("address.form.zip")}
+                    value={formData.plz}
+                    onChange={e => handleInputChange('plz', e.target.value)}
                   />
                   <TextField
                     fullWidth
-                    label={t("address.form.phone")}
-                    type="tel"
-                    placeholder="+41 XX XXX XX XX"
-                    value={formData.telefon}
-                    onChange={e => handleInputChange('telefon', e.target.value)}
-                  />
-                </Stack>
-                <Stack spacing={2}>
-                  <TextField
-                    fullWidth
-                    label={t("address.form.street")}
-                    value={formData.strasse}
-                    onChange={e => handleInputChange('strasse', e.target.value)}
-                  />
-                  <Stack direction="row" spacing={2}>
-                    <TextField
-                      label={t("address.form.zip")}
-                      value={formData.plz}
-                      onChange={e => handleInputChange('plz', e.target.value)}
-                    />
-                    <TextField
-                      fullWidth
-                      label={t("address.form.city")}
-                      value={formData.stadt}
-                      onChange={e => handleInputChange('stadt', e.target.value)}
-                    />
-                  </Stack>
-                  <TextField
-                    label="Stadt"
-                    fullWidth
-                    label={t("address.form.country")}
-                    value={formData.land}
-                    onChange={e => handleInputChange('land', e.target.value)}
+                    label={t("address.form.city")}
+                    value={formData.stadt}
+                    onChange={e => handleInputChange('stadt', e.target.value)}
                   />
                 </Stack>
                 <TextField
-                  label="Land"
                   fullWidth
-                  label={t("address.form.notes")}
-                  multiline
-                  rows={3}
-                  fullWidth
-                  value={formData.notizen}
-                  onChange={(e) => handleInputChange('notizen', e.target.value)}
+                  label={t("address.form.country")}
+                  value={formData.land}
+                  onChange={e => handleInputChange('land', e.target.value)}
                 />
-              </>
-            )}
-            <Stack direction="row" justifyContent="flex-end" spacing={2} mt={4} pt={2}>
-              <Button variant="outlined" onClick={handleCloseDialog}>
-                {t("common.cancel")}
-              </Button>
-              <Button
-                variant="contained"
-                onClick={handleSubmit}
-                disabled={!addressType}
-              >
-                {t("address.create.submit")}
-              </Button>
-            </Stack>
-          </Box>
-        </DialogContent>
-      </Dialog>
-    </>
-  );
-}
+              </Stack>
+              <TextField
+                fullWidth
+                label={t("address.form.notes")}
+                multiline
+                rows={3}
+                value={formData.notizen}
+                onChange={(e) => handleInputChange('notizen', e.target.value)}
+              />
+            </>
+          )}
+          <Stack direction="row" justifyContent="flex-end" spacing={2} mt={4} pt={2}>
+            <Button variant="outlined" onClick={handleCloseDialog}>
+              {t("common.cancel")}
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleSubmit}
+              disabled={!addressType}
+            >
+              {t("address.create.submit")}
+            </Button>
+          </Stack>
+        </Box>
+      </DialogContent>
+    </Dialog>
+  </div>)}
