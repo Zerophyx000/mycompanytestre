@@ -20,16 +20,18 @@ import {
   Business as BusinessIcon,
 } from "@mui/icons-material";
 import { addressData } from "./AddressPage";
+import { useTranslation } from "react-i18next";
 
 type Props = { adrKey: string };
 
 export default function AddressOverview({ adrKey }: Props) {
+  const { t } = useTranslation();
   const address = addressData.find((a) => a.adrKey === adrKey);
 
   if (!address) {
     return (
       <Box sx={{ p: 2 }}>
-        <Typography variant="h6">Adresse nicht gefunden</Typography>
+        <Typography variant="h6">{t("address.overview.notFound")}</Typography>
       </Box>
     );
   }
@@ -66,7 +68,7 @@ export default function AddressOverview({ adrKey }: Props) {
         <Card sx={{ flex: 1, minWidth: 220 }}>
           <CardContent>
             <Typography variant="subtitle2" gutterBottom>
-              Status
+              {t("address.overview.status")}
             </Typography>
             <Chip label={address.status} color={statusColor as any} />
           </CardContent>
@@ -74,7 +76,7 @@ export default function AddressOverview({ adrKey }: Props) {
         <Card sx={{ flex: 1, minWidth: 220 }}>
           <CardContent>
             <Typography variant="subtitle2" gutterBottom>
-              Typ
+              {t("address.overview.type")}
             </Typography>
             <Typography variant="body1" fontWeight="medium">
               {address.ownType}
@@ -84,7 +86,7 @@ export default function AddressOverview({ adrKey }: Props) {
         <Card sx={{ flex: 1, minWidth: 220 }}>
           <CardContent>
             <Typography variant="subtitle2" gutterBottom>
-              Klasse
+              {t("address.overview.class")}
             </Typography>
             <Typography variant="body1" fontWeight="medium">
               {address.class}
@@ -111,14 +113,14 @@ export default function AddressOverview({ adrKey }: Props) {
             </Stack>
 
             <Typography variant="h6" fontWeight="bold" gutterBottom>
-              Kontaktinformationen
+              {t("address.overview.contact")}
             </Typography>
             <Stack spacing={2}>
               <Stack direction="row" alignItems="center" spacing={2}>
                 <BusinessIcon fontSize="small" />
                 <Box>
                   <Typography variant="body2" color="text.secondary">
-                    Firma
+                    {t("address.overview.company")}
                   </Typography>
                   <Typography variant="body1">{company}</Typography>
                 </Box>
@@ -127,7 +129,7 @@ export default function AddressOverview({ adrKey }: Props) {
                 <PhoneIcon fontSize="small" />
                 <Box>
                   <Typography variant="body2" color="text.secondary">
-                    Telefon
+                    {t("address.overview.phone")}
                   </Typography>
                   <Typography variant="body1">{phone}</Typography>
                 </Box>
@@ -136,7 +138,7 @@ export default function AddressOverview({ adrKey }: Props) {
                 <EmailIcon fontSize="small" />
                 <Box>
                   <Typography variant="body2" color="text.secondary">
-                    E-Mail
+                    {t("address.overview.email")}
                   </Typography>
                   <Typography variant="body1">{email}</Typography>
                 </Box>
@@ -145,7 +147,7 @@ export default function AddressOverview({ adrKey }: Props) {
                 <LocationIcon fontSize="small" />
                 <Box>
                   <Typography variant="body2" color="text.secondary">
-                    Adresse
+                    {t("address.overview.address")}
                   </Typography>
                   <Typography variant="body1">{street}</Typography>
                 </Box>
@@ -154,7 +156,7 @@ export default function AddressOverview({ adrKey }: Props) {
                 <CalendarIcon fontSize="small" />
                 <Box>
                   <Typography variant="body2" color="text.secondary">
-                    Erstellt
+                    {t("address.overview.created")}
                   </Typography>
                   <Typography variant="body1">{address.aDate}</Typography>
                 </Box>
@@ -163,35 +165,36 @@ export default function AddressOverview({ adrKey }: Props) {
 
             <Box sx={{ mt: 4 }}>
               <Typography variant="h6" fontWeight="bold" gutterBottom>
-                Notizen
+                {t("address.overview.notes")}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Langjähriger Geschäftspartner mit guter Zusammenarbeit.
+                {t("address.overview.notesPlaceholder")}
               </Typography>
             </Box>
           </Paper>
         </Box>
 
-        {/* right */}
         <Box sx={{ flex: 1, minWidth: 260 }}>
           <Paper sx={{ p: 3 }}>
             <Box
               sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}
             >
               <Typography variant="h6" fontWeight="bold">
-                Beziehungen
+                {t("address.overview.relationships")}
               </Typography>
-              <IconButton size="small">
+              <IconButton size="small" aria-label={t("common.edit")}>
                 <EditIcon fontSize="small" />
               </IconButton>
             </Box>
 
             <Stack spacing={2}>
               <Button fullWidth variant="outlined" startIcon={<BusinessIcon />}>
-                VN-eigener Rechtsanwalt <Chip label="5 Beziehungen" size="small" sx={{ ml: "auto" }} />
+                {t("address.overview.relLawyer")}{" "}
+                <Chip label={t("address.overview.relCount", { count: 5 })} size="small" sx={{ ml: "auto" }} />
               </Button>
               <Button fullWidth variant="outlined" startIcon={<BusinessIcon />}>
-                VN-VP <Chip label="5 Beziehungen" size="small" sx={{ ml: "auto" }} />
+                {t("address.overview.relVp")}{" "}
+                <Chip label={t("address.overview.relCount", { count: 5 })} size="small" sx={{ ml: "auto" }} />
               </Button>
             </Stack>
           </Paper>

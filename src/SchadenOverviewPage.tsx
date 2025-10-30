@@ -21,8 +21,10 @@ import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import { useDocuments } from "./DocumentsContext";
 import { useClaim } from "./SchadenTabs";
 import { useNotes } from "./NotesContext";
+import { useTranslation } from "react-i18next";
 
 export default function SchadenOverviewPage() {
+  const { t } = useTranslation();
   const claim = useClaim();
   const notes = useNotes();
   const docs = useDocuments();
@@ -31,14 +33,15 @@ export default function SchadenOverviewPage() {
   return (
     <Box className="schaden-overview-root">
       <Grid container spacing={2} alignItems="flex-start">
-        <Grid item xs={12} md={3}>
+        <Grid>
           <Box className="card">
             <Box padding={2}>
               <Typography variant="h6" fontWeight="bold">
                 crs Coop Rechtsschutz
               </Typography>
+
               <Typography variant="body2" color="text.secondary">
-                MEMBER
+                {t("overview.member")}
               </Typography>
 
               <Box marginTop={2}>
@@ -48,6 +51,7 @@ export default function SchadenOverviewPage() {
                   8600 Dübendorf, Switzerland
                 </Typography>
               </Box>
+
               <Stack direction="row" alignItems="center" spacing={1} marginTop={1}>
                 <MailOutlineIcon fontSize="small" />
                 <Typography variant="body2">m.hoffmann@lawgroup.com</Typography>
@@ -58,10 +62,10 @@ export default function SchadenOverviewPage() {
               </Stack>
 
               <Box marginTop={2} marginBottom={0.5}>
-                <Chip size="small" color="warning" label="10 | Nächster Termin" />
+                <Chip size="small" color="warning" label={t("overview.nextAppointment", { value: 10 })} />
               </Box>
               <Typography variant="caption" color="text.secondary" display="block">
-                Letzte Änderung: 15. Aug. 2025, 15:18
+                {t("overview.lastChange")} 15. Aug. 2025, 15:18
               </Typography>
             </Box>
 
@@ -70,15 +74,15 @@ export default function SchadenOverviewPage() {
             <Box padding={2}>
               <Stack direction="row" spacing={1}>
                 <Button size="small" variant="outlined" startIcon={<NoteIcon />} onClick={() => notes?.openCreate()}>
-                  Note
+                  {t("buttons.note")}
                 </Button>
                 <Button size="small" variant="outlined" startIcon={<EmailIcon />}>
-                  Email
+                  {t("buttons.email")}
                 </Button>
                 <Button size="small" variant="outlined" startIcon={<DescriptionIcon />} onClick={() => docs?.openCreate()}>
-                  Doc
-               </Button>
-                <IconButton size="small">
+                  {t("buttons.document")}
+                </Button>
+                <IconButton size="small" aria-label={t("buttons.more")}>
                   <MoreVertIcon />
                 </IconButton>
               </Stack>
@@ -87,71 +91,77 @@ export default function SchadenOverviewPage() {
             <Divider />
 
             <Box padding={2}>
-              <Typography variant="subtitle2">Interner Schlüssel</Typography>
+              <Typography variant="subtitle2">{t("overview.internalKey")}</Typography>
               <Typography variant="body2" gutterBottom>345984</Typography>
-              <Typography variant="subtitle2">Team</Typography>
+
+              <Typography variant="subtitle2">{t("overview.team")}</Typography>
               <Typography variant="body2" gutterBottom>Front 1</Typography>
-              <Typography variant="subtitle2">Schadenstelle</Typography>
+
+              <Typography variant="subtitle2">{t("overview.damageLocation")}</Typography>
               <Typography variant="body2" gutterBottom>10 Arau</Typography>
-              <Typography variant="subtitle2">Schaden-Nummer</Typography>
+
+              <Typography variant="subtitle2">{t("overview.caseNumber")}</Typography>
               <Typography variant="body2" gutterBottom>35789</Typography>
-              <Typography variant="subtitle2">Schadenjahr</Typography>
+
+              <Typography variant="subtitle2">{t("overview.caseYear")}</Typography>
               <Typography variant="body2" gutterBottom>2023</Typography>
+
               <Divider style={{ margin: "8px 0" }} />
+
               <Typography variant="caption" color="text.secondary" display="block">
-                Erstellt: 8. Jan. 2025, 09:15
+                {t("overview.created")} 8. Jan. 2025, 09:15
               </Typography>
               <Typography variant="caption" color="text.secondary" display="block">
-                Zuletzt bearbeitet: 11. Jan. 2025, 16:45 (by John Smith)
+                {t("overview.lastEdited")} 11. Jan. 2025, 16:45 (by John Smith)
               </Typography>
             </Box>
           </Box>
         </Grid>
 
-        <Grid item xs={12} md={9}>
+        <Grid>
           <Grid container spacing={2} alignItems="flex-start">
-            <Grid item xs={12} md={8} className="minw0">
+            <Grid className="minw0">
               <Box className="card">
                 <Accordion defaultExpanded disableGutters>
                   <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography variant="h6">Aufwand</Typography>
+                    <Typography variant="h6">{t("overview.effort")}</Typography>
                   </AccordionSummary>
                   <AccordionDetails>
                     <Stack spacing={1}>
                       <Typography variant="body2" color="text.secondary">
-                        Optionale Beschreibung
+                        {t("overview.optionalDescription")}
                       </Typography>
                       <Stack direction="row" spacing={1} flexWrap="wrap">
                         {[5, 10, 15, 30, 45, 60].map((m) => (
                           <Button key={m} size="small" variant="outlined">
-                            {m} min
+                            {t("overview.minutes", { value: m })}
                           </Button>
                         ))}
                       </Stack>
                       <Divider />
                       <Grid container spacing={2}>
-                        <Grid item xs={6}>
-                          <Typography variant="subtitle2">Rückstellungen</Typography>
+                        <Grid>
+                          <Typography variant="subtitle2">{t("overview.provisions")}</Typography>
                           <Typography variant="body2">0.00</Typography>
                         </Grid>
-                        <Grid item xs={6}>
-                          <Typography variant="subtitle2">Budget</Typography>
+                        <Grid>
+                          <Typography variant="subtitle2">{t("overview.budget")}</Typography>
                           <Typography variant="body2">500.00</Typography>
                         </Grid>
-                        <Grid item xs={6}>
-                          <Typography variant="subtitle2">Gesamtaufwand</Typography>
+                        <Grid>
+                          <Typography variant="subtitle2">{t("overview.totalEffort")}</Typography>
                           <Typography variant="body2">57.50</Typography>
                         </Grid>
-                        <Grid item xs={6}>
-                          <Typography variant="subtitle2">Restbudget</Typography>
+                        <Grid>
+                          <Typography variant="subtitle2">{t("overview.remainingBudget")}</Typography>
                           <Typography variant="body2">442.50</Typography>
                         </Grid>
-                        <Grid item xs={6}>
-                          <Typography variant="subtitle2">Eigenaufwand</Typography>
+                        <Grid>
+                          <Typography variant="subtitle2">{t("overview.ownEffort")}</Typography>
                           <Typography variant="body2">57.50</Typography>
                         </Grid>
-                        <Grid item xs={6}>
-                          <Typography variant="subtitle2">Zeit</Typography>
+                        <Grid>
+                          <Typography variant="subtitle2">{t("overview.time")}</Typography>
                           <Typography variant="body2">1 Std. 30 min</Typography>
                         </Grid>
                       </Grid>
@@ -160,28 +170,27 @@ export default function SchadenOverviewPage() {
                 </Accordion>
               </Box>
 
-
               <Box className="card">
                 <Accordion defaultExpanded disableGutters>
                   <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography variant="h6">Metadaten</Typography>
+                    <Typography variant="h6">{t("overview.metadata")}</Typography>
                   </AccordionSummary>
                   <AccordionDetails>
                     <Grid container spacing={2}>
-                      <Grid item xs={6}>
-                        <Typography variant="subtitle2">Anlage</Typography>
+                      <Grid>
+                        <Typography variant="subtitle2">{t("overview.installationDate")}</Typography>
                         <Typography variant="body2">12.09.2023</Typography>
                       </Grid>
-                      <Grid item xs={6}>
-                        <Typography variant="subtitle2">Eigner</Typography>
+                      <Grid>
+                        <Typography variant="subtitle2">{t("overview.owner")}</Typography>
                         <Typography variant="body2">Carlos Müller</Typography>
                       </Grid>
-                      <Grid item xs={6}>
-                        <Typography variant="subtitle2">Status</Typography>
+                      <Grid>
+                        <Typography variant="subtitle2">{t("overview.status")}</Typography>
                         <Typography variant="body2">10 | Nächster Termin</Typography>
                       </Grid>
-                      <Grid item xs={6}>
-                        <Typography variant="subtitle2">Status Datum</Typography>
+                      <Grid>
+                        <Typography variant="subtitle2">{t("overview.statusDate")}</Typography>
                         <Typography variant="body2">15.08.2025 15:18</Typography>
                       </Grid>
                     </Grid>
@@ -192,28 +201,28 @@ export default function SchadenOverviewPage() {
               <Box className="card">
                 <Accordion defaultExpanded disableGutters>
                   <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography variant="h6">Schadendaten</Typography>
+                    <Typography variant="h6">{t("overview.claimData")}</Typography>
                   </AccordionSummary>
                   <AccordionDetails>
                     <Grid container spacing={2}>
-                      <Grid item xs={6}>
-                        <Typography variant="subtitle2">Schadenstelle</Typography>
+                      <Grid>
+                        <Typography variant="subtitle2">{t("overview.damageLocation")}</Typography>
                         <Typography variant="body2">10 | Arau</Typography>
                       </Grid>
-                      <Grid item xs={6}>
-                        <Typography variant="subtitle2">Schadendatum</Typography>
+                      <Grid>
+                        <Typography variant="subtitle2">{t("overview.damageDate")}</Typography>
                         <Typography variant="body2">21.12.2023</Typography>
                       </Grid>
-                      <Grid item xs={6}>
-                        <Typography variant="subtitle2">Mitglied-Nummer</Typography>
+                      <Grid>
+                        <Typography variant="subtitle2">{t("overview.memberNumber")}</Typography>
                         <Typography variant="body2">12345</Typography>
                       </Grid>
-                      <Grid item xs={6}>
-                        <Typography variant="subtitle2">Fall-Nummer</Typography>
+                      <Grid>
+                        <Typography variant="subtitle2">{t("overview.caseNumber")}</Typography>
                         <Typography variant="body2">235546</Typography>
                       </Grid>
-                      <Grid item xs={12}>
-                        <Typography variant="subtitle2">SchadenCodes</Typography>
+                      <Grid>
+                        <Typography variant="subtitle2">{t("overview.damageCodes")}</Typography>
                         <Typography variant="body2">
                           1-1-17-08 | Deckung-Schweiz-Beratungsrechtsschutz-Mietrecht
                         </Typography>
@@ -224,15 +233,15 @@ export default function SchadenOverviewPage() {
               </Box>
             </Grid>
 
-            <Grid item xs={12} md={4} className="minw0">
+            <Grid className="minw0">
               <Box className="card">
                 <Accordion defaultExpanded disableGutters>
                   <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography variant="h6">Beziehungen</Typography>
+                    <Typography variant="h6">{t("overview.relationships")}</Typography>
                   </AccordionSummary>
                   <AccordionDetails>
                     <Typography variant="body2" color="text.secondary">
-                      Platzhalter
+                      {t("overview.placeholder")}
                     </Typography>
                   </AccordionDetails>
                 </Accordion>

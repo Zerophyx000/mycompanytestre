@@ -32,8 +32,10 @@ import {
 
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import type { GridColDef, GridRowParams } from "@mui/x-data-grid";
+import { useTranslation } from "react-i18next";
 
 export const addressData = [
+  // (unchanged demo data)
   {
     id: 1,
     adrKey: "ADR001234",
@@ -151,6 +153,7 @@ type Props = {
 };
 
 export default function AddressPage({ onOpenAddress }: Props) {
+  const { t } = useTranslation();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [activeFilter, setActiveFilter] = useState("alle");
@@ -193,21 +196,21 @@ export default function AddressPage({ onOpenAddress }: Props) {
   }, [activeFilter]);
 
   const columns: GridColDef[] = [
-    { field: 'adrKey', headerName: 'AdrKey', minWidth: 100, flex: 1 },
-    { field: 'ownType', headerName: 'OwnType', minWidth: 100, flex: 1 },
-    { field: 'extTyp', headerName: 'ExtTyp', minWidth: 90, flex: 1 },
-    { field: 'extKey', headerName: 'ExtKey', minWidth: 110, flex: 1 },
-    { field: 'memberKey', headerName: 'MemberKey', minWidth: 110, flex: 1 },
-    { field: 'member', headerName: 'Member', minWidth: 120, flex: 1 },
-    { field: 'adrKeyMain', headerName: 'AdrKeyMain', minWidth: 110, flex: 1 },
-    { field: 'adrKeyNew', headerName: 'AdrKeyNew', minWidth: 110, flex: 1 },
-    { field: 'alternateKey', headerName: 'AlternateKey', minWidth: 120, flex: 1 },
-    { field: 'proKey', headerName: 'ProKey', minWidth: 110, flex: 1 },
-    { field: 'aDate', headerName: 'ADate', minWidth: 100, flex: 1 },
-    { field: 'origin', headerName: 'Origin', minWidth: 80, flex: 1 },
-    { field: 'class', headerName: 'Class', minWidth: 100, flex: 1 },
-    { field: 'status', headerName: 'Status', minWidth: 90, flex: 1 },
-    { field: 'statusDate', headerName: 'StatusDate', minWidth: 110, flex: 1 }
+    { field: 'adrKey', headerName: t('address.grid.adrKey'), minWidth: 100, flex: 1 },
+    { field: 'ownType', headerName: t('address.grid.ownType'), minWidth: 100, flex: 1 },
+    { field: 'extTyp', headerName: t('address.grid.extTyp'), minWidth: 90, flex: 1 },
+    { field: 'extKey', headerName: t('address.grid.extKey'), minWidth: 110, flex: 1 },
+    { field: 'memberKey', headerName: t('address.grid.memberKey'), minWidth: 110, flex: 1 },
+    { field: 'member', headerName: t('address.grid.member'), minWidth: 120, flex: 1 },
+    { field: 'adrKeyMain', headerName: t('address.grid.adrKeyMain'), minWidth: 110, flex: 1 },
+    { field: 'adrKeyNew', headerName: t('address.grid.adrKeyNew'), minWidth: 110, flex: 1 },
+    { field: 'alternateKey', headerName: t('address.grid.alternateKey'), minWidth: 120, flex: 1 },
+    { field: 'proKey', headerName: t('address.grid.proKey'), minWidth: 110, flex: 1 },
+    { field: 'aDate', headerName: t('address.grid.aDate'), minWidth: 100, flex: 1 },
+    { field: 'origin', headerName: t('address.grid.origin'), minWidth: 80, flex: 1 },
+    { field: 'class', headerName: t('address.grid.class'), minWidth: 100, flex: 1 },
+    { field: 'status', headerName: t('address.grid.status'), minWidth: 90, flex: 1 },
+    { field: 'statusDate', headerName: t('address.grid.statusDate'), minWidth: 110, flex: 1 }
   ];
 
   const handleRowClick = (params: GridRowParams) => {
@@ -253,61 +256,54 @@ export default function AddressPage({ onOpenAddress }: Props) {
   return (
     <>
       <CssBaseline />
-      <Box sx={{ p: 3 }}>
-        <Breadcrumbs sx={{ mb: 2 }}>
-          <Link
-            color="inherit"
-            onClick={navigateToHome}
-            sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
-          >
-            <HomeIcon sx={{ mr: 0.5 }} fontSize="small" />
-            Dashboard
-          </Link>
-          <Typography color="text.primary" sx={{ display: 'flex', alignItems: 'center' }}>
-            <PeopleIcon sx={{ mr: 0.5 }} fontSize="small" />
-            Adressen
-          </Typography>
-        </Breadcrumbs>
+      <Box component="main" minHeight="100vh" display="flex" flexDirection="column">
+        <Box px={3} pt={2} pb={1}>
+          <Breadcrumbs aria-label="breadcrumb">
+            <Link
+              component="button"
+              variant="body2"
+              onClick={navigateToHome}
+              underline="hover"
+              display="flex"
+              alignItems="center"
+              gap={1}
+            >
+              <HomeIcon fontSize="small" />
+              {t("address.breadcrumb.dashboard")}
+            </Link>
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <PeopleIcon fontSize="small" />
+              <Typography variant="body2">{t("address.breadcrumb.addresses")}</Typography>
+            </Stack>
+          </Breadcrumbs>
+        </Box>
 
-        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-          <Box>
-            <Typography variant="h4" component="h1" gutterBottom>
-              Adressen
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Kontakte und Adressen verwalten
-            </Typography>
-          </Box>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => setIsCreateDialogOpen(true)}
-            startIcon={<PersonAddIcon />}
-            size="large"
-          >
-            Neue Adresse
-          </Button>
-        </Stack>
-
-        {addressData.length === 0 && (
-          <Stack
-            direction="row"
-            alignItems="center"
-            spacing={1}
-            sx={{
-              mb: 2,
-              p: 2,
-              bgcolor: 'info.lighter',
-              borderRadius: 1
-            }}
-          >
+        <Box px={3} pb={2}>
+          <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
+            <Stack direction="row" alignItems="center" spacing={2}>
+              <PeopleIcon fontSize="large" />
+              <Box>
+                <Typography variant="h4" component="h1" fontWeight="bold">
+                  {t("address.header.title")}
+                </Typography>
+                <Typography variant="body2">
+                  {t("address.header.subtitle")}
+                </Typography>
+              </Box>
+            </Stack>
+            <Button
+              variant="contained"
+              onClick={() => setIsCreateDialogOpen(true)}
+              startIcon={<PersonAddIcon />}
+              size="large"
+            >
+              {t("address.actions.new")}
+            </Button>
+          </Stack>
+          <Stack direction="row" alignItems="center" spacing={1} mb={2}>
             <PersonAddIcon fontSize="small" />
-            <Typography variant="body2">
-              Schnellaktion verfügbar: Neue Adresse hinzufügen
-            </Typography>
-            <Typography variant="caption" sx={{ ml: 'auto' }}>
-              Klicken Sie auf "Neue Adresse" um loszulegen
-            </Typography>
+            <Typography variant="body2">{t("address.quick.add")}</Typography>
+            <Typography variant="caption" ml="auto">{t("address.quick.hint")}</Typography>
           </Stack>
         )}
 
@@ -406,8 +402,9 @@ export default function AddressPage({ onOpenAddress }: Props) {
                       onChange={(e) => handleInputChange('vorname', e.target.value)}
                     />
                     <TextField
-                      label="Nachname *"
                       fullWidth
+                      label={t("address.form.lastName") + " *"}
+                      placeholder={t("address.form.lastNamePh") ?? ""}
                       value={formData.nachname}
                       onChange={(e) => handleInputChange('nachname', e.target.value)}
                     />
@@ -437,24 +434,53 @@ export default function AddressPage({ onOpenAddress }: Props) {
                   <TextField
                     label="PLZ"
                     fullWidth
-                    value={formData.plz}
-                    onChange={(e) => handleInputChange('plz', e.target.value)}
+                    label={t("address.form.email")}
+                    type="email"
+                    placeholder="beispiel@email.com"
+                    value={formData.email}
+                    onChange={e => handleInputChange('email', e.target.value)}
                   />
+                  <TextField
+                    fullWidth
+                    label={t("address.form.phone")}
+                    type="tel"
+                    placeholder="+41 XX XXX XX XX"
+                    value={formData.telefon}
+                    onChange={e => handleInputChange('telefon', e.target.value)}
+                  />
+                </Stack>
+                <Stack spacing={2}>
+                  <TextField
+                    fullWidth
+                    label={t("address.form.street")}
+                    value={formData.strasse}
+                    onChange={e => handleInputChange('strasse', e.target.value)}
+                  />
+                  <Stack direction="row" spacing={2}>
+                    <TextField
+                      label={t("address.form.zip")}
+                      value={formData.plz}
+                      onChange={e => handleInputChange('plz', e.target.value)}
+                    />
+                    <TextField
+                      fullWidth
+                      label={t("address.form.city")}
+                      value={formData.stadt}
+                      onChange={e => handleInputChange('stadt', e.target.value)}
+                    />
+                  </Stack>
                   <TextField
                     label="Stadt"
                     fullWidth
-                    value={formData.stadt}
-                    onChange={(e) => handleInputChange('stadt', e.target.value)}
+                    label={t("address.form.country")}
+                    value={formData.land}
+                    onChange={e => handleInputChange('land', e.target.value)}
                   />
                 </Stack>
                 <TextField
                   label="Land"
                   fullWidth
-                  value={formData.land}
-                  onChange={(e) => handleInputChange('land', e.target.value)}
-                />
-                <TextField
-                  label="Notizen"
+                  label={t("address.form.notes")}
                   multiline
                   rows={3}
                   fullWidth
@@ -463,13 +489,16 @@ export default function AddressPage({ onOpenAddress }: Props) {
                 />
               </>
             )}
-
-            <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
-              <Button onClick={handleCloseDialog} variant="outlined" fullWidth>
-                Abbrechen
+            <Stack direction="row" justifyContent="flex-end" spacing={2} mt={4} pt={2}>
+              <Button variant="outlined" onClick={handleCloseDialog}>
+                {t("common.cancel")}
               </Button>
-              <Button onClick={handleSubmit} variant="contained" fullWidth>
-                Adresse erstellen
+              <Button
+                variant="contained"
+                onClick={handleSubmit}
+                disabled={!addressType}
+              >
+                {t("address.create.submit")}
               </Button>
             </Stack>
           </Box>

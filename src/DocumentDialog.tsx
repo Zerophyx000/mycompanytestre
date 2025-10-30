@@ -3,6 +3,7 @@ import {
   Dialog, DialogTitle, DialogContent, DialogActions,
   Button, Stack, Typography, List, ListItem, ListItemText
 } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   open: boolean;
@@ -11,6 +12,7 @@ type Props = {
 };
 
 export default function DocumentDialog({ open, onClose, onSave }: Props) {
+  const { t } = useTranslation();
   const [files, setFiles] = React.useState<File[]>([]);
 
   const pickRef = React.useRef<HTMLInputElement | null>(null);
@@ -25,11 +27,11 @@ export default function DocumentDialog({ open, onClose, onSave }: Props) {
 
   return (
     <Dialog open={open} onClose={() => { reset(); onClose(); }} maxWidth="sm" fullWidth>
-      <DialogTitle>Dokumente hochladen</DialogTitle>
+      <DialogTitle>{t("documents.uploadTitle")}</DialogTitle>
       <DialogContent>
         <Stack spacing={2} mt={1}>
           <Typography variant="body2" color="text.secondary">
-            Wählen Sie eine oder mehrere Dateien aus
+            {t("documents.pickHint")}
           </Typography>
 
           <input
@@ -41,7 +43,7 @@ export default function DocumentDialog({ open, onClose, onSave }: Props) {
           />
 
           <Button variant="outlined" onClick={pick}>
-            Dateien auswählen…
+            {t("documents.pickFiles")}
           </Button>
 
           <List dense>
@@ -49,13 +51,13 @@ export default function DocumentDialog({ open, onClose, onSave }: Props) {
               <ListItem key={f.name}>
                 <ListItemText
                   primary={f.name}
-                  secondary={`${f.type || "Unbekannt"} • ${(f.size / 1024).toFixed(1)} KB`}
+                  secondary={`${f.type || t("documents.unknownType")} • ${(f.size / 1024).toFixed(1)} KB`}
                 />
               </ListItem>
             ))}
             {files.length === 0 && (
               <Typography variant="body2" color="text.secondary">
-                Noch keine Dateien ausgewählt
+                {t("documents.noneSelected")}
               </Typography>
             )}
           </List>
@@ -67,14 +69,14 @@ export default function DocumentDialog({ open, onClose, onSave }: Props) {
           color="inherit"
           variant="outlined"
         >
-          Abbrechen
+          {t("common.cancel")}
         </Button>
         <Button
           onClick={() => { onSave(files); reset(); onClose(); }}
           variant="contained"
           disabled={files.length === 0}
         >
-          Hochladen
+          {t("documents.upload")}
         </Button>
       </DialogActions>
     </Dialog>

@@ -1,5 +1,4 @@
-import * as React from "react";
-import { Box, Paper, Typography, List, ListItem, ListItemText, Chip } from "@mui/material";
+import { Paper, Typography, List, ListItem, ListItemText, Chip } from "@mui/material";
 
 type Props = { adrKey?: string };
 

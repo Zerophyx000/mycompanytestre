@@ -160,9 +160,7 @@ function AddressDetailLayout({ adrKey }: AddressDetailLayoutProps) {
 
       <Divider />
 
-      {/* 3-Column Layout: LEFT | MIDDLE | RIGHT */}
       <Box sx={{ display: "flex", flex: 1, overflow: "hidden" }}>
-        {/* LEFT SIDEBAR - Main Info (Fixed, doesn't change) */}
         <Paper
           elevation={0}
           sx={{
@@ -177,7 +175,6 @@ function AddressDetailLayout({ adrKey }: AddressDetailLayoutProps) {
             MEMBER
           </Typography>
 
-          {/* User Avatar & Name */}
           <Stack direction="row" spacing={2} alignItems="center" mb={2}>
             <Avatar sx={{ width: 56, height: 56, bgcolor: "primary.main" }}>
               {addressData.name.split(" ").map(n => n[0]).join("")}
@@ -199,7 +196,6 @@ function AddressDetailLayout({ adrKey }: AddressDetailLayoutProps) {
             sx={{ mb: 2 }}
           />
 
-          {/* Contact Information */}
           <Typography variant="subtitle2" gutterBottom fontWeight="bold" mt={2}>
             Kontaktinformationen
           </Typography>
@@ -266,12 +262,10 @@ function AddressDetailLayout({ adrKey }: AddressDetailLayoutProps) {
           </Typography>
         </Paper>
 
-        {/* MIDDLE - Tab Content (Changes based on navigation) */}
         <Box sx={{ flex: 1, overflow: "auto", bgcolor: "background.default" }}>
           {renderTab()}
         </Box>
 
-        {/* RIGHT SIDEBAR - Navigation (Fixed, doesn't change) */}
         <Paper
           elevation={0}
           sx={{
