@@ -1,4 +1,5 @@
-import { createTheme } from "@mui/material/styles";
+// src/theme/index.ts
+import { createTheme, alpha } from "@mui/material/styles";
 import { blueTheme } from "./lightThemes/blueTheme";
 import { redTheme } from "./lightThemes/redTheme";
 import { orangeTheme } from "./lightThemes/orangeTheme";
@@ -38,6 +39,118 @@ function pickTheme(p: Preset) {
   return blueTheme;
 }
 
+function paletteDrivenComponentOverrides() {
+  return {
+    MuiButton: {
+      styleOverrides: {
+        contained: ({ theme }: any) => ({
+          backgroundColor: theme.palette.primary.main,
+          color: theme.palette.primary.contrastText,
+          "&:hover": { backgroundColor: theme.palette.primary.dark },
+        }),
+        outlined: ({ theme }: any) => ({
+          borderColor: alpha(theme.palette.primary.main, 0.5),
+          color: theme.palette.primary.main,
+          "&:hover": {
+            borderColor: theme.palette.primary.main,
+            backgroundColor: alpha(theme.palette.primary.main, 0.06),
+          },
+        }),
+        text: ({ theme }: any) => ({
+          color: theme.palette.primary.main,
+          "&:hover": { backgroundColor: alpha(theme.palette.primary.main, 0.06) },
+        }),
+      },
+    },
+    MuiTabs: {
+      styleOverrides: {
+        indicator: ({ theme }: any) => ({
+          backgroundColor: theme.palette.primary.main,
+        }),
+      },
+    },
+    MuiTab: {
+      styleOverrides: {
+        root: ({ theme }: any) => ({
+          "&.Mui-selected": { color: theme.palette.primary.main },
+        }),
+      },
+    },
+    MuiListItemButton: {
+      styleOverrides: {
+        root: ({ theme }: any) => ({
+          "&.Mui-selected": {
+            backgroundColor: alpha(theme.palette.primary.main, 0.12),
+            color: theme.palette.primary.main,
+          },
+        }),
+      },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: ({ theme }: any) => ({
+          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+            borderColor: theme.palette.primary.main,
+            borderWidth: 2,
+          },
+          "&:hover .MuiOutlinedInput-notchedOutline": {
+            borderColor: theme.palette.primary.main,
+          },
+        }),
+      },
+    },
+    MuiCheckbox: {
+      styleOverrides: {
+        root: ({ theme }: any) => ({
+          color: alpha(theme.palette.primary.main, 0.6),
+          "&.Mui-checked": { color: theme.palette.primary.main },
+        }),
+      },
+    },
+    MuiRadio: {
+      styleOverrides: {
+        root: ({ theme }: any) => ({
+          color: alpha(theme.palette.primary.main, 0.6),
+          "&.Mui-checked": { color: theme.palette.primary.main },
+        }),
+      },
+    },
+    MuiSwitch: {
+      styleOverrides: {
+        switchBase: ({ theme }: any) => ({
+          "&.Mui-checked": {
+            color: theme.palette.primary.main,
+            "& + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main },
+          },
+        }),
+      },
+    },
+    MuiSlider: {
+      styleOverrides: {
+        thumb: ({ theme }: any) => ({ color: theme.palette.primary.main }),
+        track: ({ theme }: any) => ({ color: theme.palette.primary.main }),
+        rail: ({ theme }: any) => ({ color: alpha(theme.palette.primary.main, 0.4) }),
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        colorPrimary: ({ theme }: any) => ({
+          backgroundColor: alpha(theme.palette.primary.main, 0.12),
+          color: theme.palette.primary.main,
+        }),
+      },
+    },
+    MuiLink: {
+      styleOverrides: {
+        root: ({ theme }: any) => ({
+          color: theme.palette.primary.main,
+          "&:hover": { color: theme.palette.primary.dark },
+        }),
+      },
+    },
+  };
+}
+
 function withRuntimeOverrides(base: ReturnType<typeof createTheme>) {
   const primary = read(LS_PRIMARY) || undefined;
   const secondary = read(LS_SECONDARY) || undefined;
@@ -65,6 +178,10 @@ function withRuntimeOverrides(base: ReturnType<typeof createTheme>) {
     },
     shape: { ...base.shape, ...(Number.isFinite(radius as number) ? { borderRadius: radius as number } : {}) },
     typography: { ...base.typography, ...(fontFamily ? { fontFamily } : {}) },
+    components: {
+      ...base.components,
+      ...paletteDrivenComponentOverrides(),
+    },
   });
 }
 
