@@ -38,38 +38,27 @@ import SettingsTab from "./SettingsTab";
 import { useTranslation } from "react-i18next";
 
 type MainKey = "dashboard" | "adressen" | "schaeden" | "calendar" | "settings";
+type TabItem = { key: string; label: string; row?: SchadenRow; adrKey?: string };
+type User = { id: string; name: string; avatar: string; permissions: MainKey[] };
 
-type TabItem = {
-  key: string;
-  label: string;
-  row?: SchadenRow;
-  adrKey?: string;
+const USERS: Record<string, Omit<User, "permissions"> & { permissions: MainKey[] }> = {
+  max: { id: "max", name: "Max Mustermann", avatar: "MM", permissions: ["schaeden", "calendar"] },
+  anna: { id: "anna", name: "Anna Admin", avatar: "AA", permissions: ["adressen", "settings"] },
+  tom: { id: "tom", name: "Tom Tester", avatar: "TT", permissions: [] },
 };
 
-type User = {
-  id: "max" | "anna";
-  name: string;
-  avatar: string;
-  permissions: MainKey[];
-};
-
-const USERS: Record<User["id"], User> = {
-  max: { id: "max", name: "Max Mustermann", avatar: "MM", permissions: ["dashboard", "schaeden", "calendar"] },
-  anna: { id: "anna", name: "Anna Admin", avatar: "AA", permissions: ["dashboard", "adressen", "settings"] },
-};
-
+const PERM_PREFIX = "app.perms.";
+const VALID_PERMS: MainKey[] = ["adressen", "schaeden", "calendar", "settings"];
 const RECENT_MAX = 8;
-const PERMS_KEY_MAX = "app.perms.max";
-const VALID_PERMS = ["dashboard", "adressen", "schaeden", "calendar"] as const;
 
-function loadMaxPerms(): Extract<MainKey, "dashboard" | "adressen" | "schaeden" | "calendar">[] {
+function loadPermsFor(userId: string, fallback: MainKey[]): MainKey[] {
   try {
-    const raw = localStorage.getItem(PERMS_KEY_MAX);
-    if (!raw) return ["dashboard", "schaeden", "calendar"];
+    const raw = localStorage.getItem(PERM_PREFIX + userId);
+    if (!raw) return fallback;
     const arr = JSON.parse(raw) as string[];
-    return arr.filter((x) => (VALID_PERMS as readonly string[]).includes(x)) as any;
+    return arr.filter((x) => VALID_PERMS.includes(x as MainKey)) as MainKey[];
   } catch {
-    return ["dashboard", "schaeden", "calendar"];
+    return fallback;
   }
 }
 
@@ -85,26 +74,38 @@ function labelFor(key: MainKey, t: (k: string, opts?: any) => string) {
 export default function App() {
   const { t, i18n } = useTranslation();
 
-  const initialLang = (localStorage.getItem("lang") || i18n.language || "en").slice(0,2);
+  const initialLang = (localStorage.getItem("lang") || "en").slice(0, 2);
   const [lang, setLang] = React.useState<"en" | "de" | "fr">(
-    (["en","de","fr"].includes(initialLang) ? initialLang : "en") as "en" | "de" | "fr"
+    (["en", "de", "fr"].includes(initialLang) ? initialLang : "en") as "en" | "de" | "fr"
   );
   React.useEffect(() => {
-    i18n.changeLanguage(lang);
     localStorage.setItem("lang", lang);
+    const fn = (i18n as any)?.changeLanguage;
+    if (typeof fn === "function") fn(lang);
   }, [lang, i18n]);
 
-  const [user, setUser] = React.useState<User>({ ...USERS.max, permissions: loadMaxPerms() });
+  const usersList = React.useMemo(
+    () => [
+      { id: "max", name: USERS.max.name, avatar: USERS.max.avatar },
+      { id: "anna", name: USERS.anna.name, avatar: USERS.anna.avatar },
+      { id: "tom", name: USERS.tom.name, avatar: USERS.tom.avatar },
+    ],
+    []
+  );
+
+  const [user, setUser] = React.useState<User>({
+    ...USERS.max,
+    permissions: loadPermsFor("max", USERS.max.permissions),
+  });
+
   const [tabs, setTabs] = React.useState<TabItem[]>([{ key: "dashboard", label: t("tabs.dashboard") }]);
   const [activeKey, setActiveKey] = React.useState<string>("dashboard");
   const [recentSchadens, setRecentSchadens] = React.useState<SchadenRow[]>([]);
 
   const activeIndex = Math.max(0, tabs.findIndex((t) => t.key === activeKey));
   const isDetailTab = activeKey.startsWith("claim:") || activeKey.startsWith("address:");
-  const canSee = (k: MainKey) => {
-    if (k === "settings") return user.id === "anna";
-    return user.permissions.includes(k);
-  };
+
+  const canSee = (k: MainKey) => (k === "dashboard" ? true : user.permissions.includes(k));
 
   const openTab = (key: MainKey) => {
     if (!canSee(key)) return;
@@ -127,7 +128,7 @@ export default function App() {
     if (!canSee("adressen")) return;
     const key = `address:${adrKey}`;
     if (!tabs.some((t) => t.key === key)) {
-      setTabs((prev) => [...prev, { key, label: t("tabs.address", { adrKey }) , adrKey }]);
+      setTabs((prev) => [...prev, { key, label: t("tabs.address", { adrKey }), adrKey }]);
     }
     setActiveKey(key);
   };
@@ -139,11 +140,11 @@ export default function App() {
     if (activeKey === key && next.length > 0) setActiveKey(next[next.length - 1].key);
   };
 
-  function handleSwitchUser(nextId: User["id"]) {
+  function handleSwitchUser(nextId: string) {
     if (nextId === user.id) return;
-    const base = USERS[nextId];
-    const perms = nextId === "max" ? loadMaxPerms() : base.permissions.filter((k) => k !== "settings");
-    const nextUser: User = { ...base, permissions: perms as any };
+    const base = USERS[nextId] ?? USERS.max;
+    const nextPerms = loadPermsFor(nextId, base.permissions);
+    const nextUser: User = { ...base, permissions: nextPerms };
     setUser(nextUser);
 
     const filtered = tabs.filter((t) => {
@@ -151,7 +152,7 @@ export default function App() {
       if (t.key === "adressen") return nextUser.permissions.includes("adressen");
       if (t.key === "schaeden") return nextUser.permissions.includes("schaeden");
       if (t.key === "calendar") return nextUser.permissions.includes("calendar");
-      if (t.key === "settings") return nextUser.id === "anna";
+      if (t.key === "settings") return nextUser.permissions.includes("settings");
       if (t.key.startsWith("address:")) return nextUser.permissions.includes("adressen");
       if (t.key.startsWith("claim:")) return nextUser.permissions.includes("schaeden");
       return false;
@@ -170,13 +171,14 @@ export default function App() {
           onSwitchUser={handleSwitchUser}
           recentSchadens={recentSchadens}
           onOpenClaim={openClaimTab}
+          usersList={usersList}
         />
       );
     }
     if (ti.key === "adressen") return <AdressePage onOpenAddress={openAddressTab} />;
     if (ti.key === "schaeden") return <SchadenPage onOpenClaim={openClaimTab} />;
     if (ti.key === "calendar") return <SchadenCalendar rows={SCHADEN_ROWS} />;
-    if (ti.key === "settings") return <SettingsTab />;
+    if (ti.key === "settings") return <SettingsTab users={usersList} />;
     if (ti.key.startsWith("claim:") && ti.row) return <SchadenTabs claim={ti.row} />;
     if (ti.key.startsWith("address:") && ti.adrKey) return <AddressDetailLayout adrKey={ti.adrKey} />;
     return <Box />;
@@ -239,7 +241,7 @@ export default function App() {
       </AppBar>
 
       <Stack direction="row" flexGrow={1} minHeight={0}>
-        <Paper square>
+        <Paper square sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
           <List>
             <ListItemButton selected={activeKey === "dashboard"} onClick={() => openTab("dashboard")}>
               <ListItemIcon><HomeIcon /></ListItemIcon>
@@ -266,14 +268,18 @@ export default function App() {
                 {!isDetailTab && <ListItemText primary={t("nav.calendar")} />}
               </ListItemButton>
             )}
+          </List>
 
-            {user.id === "anna" && (
+          <Box sx={{ flexGrow: 1 }} />
+
+          {user.permissions.includes("settings") && (
+            <List>
               <ListItemButton selected={activeKey === "settings"} onClick={() => openTab("settings")}>
                 <ListItemIcon><SettingsOutlinedIcon /></ListItemIcon>
                 {!isDetailTab && <ListItemText primary={t("nav.settings", "Settings")} />}
               </ListItemButton>
-            )}
-          </List>
+            </List>
+          )}
         </Paper>
 
         <Box flexGrow={1} minWidth={0} minHeight={0} display="flex">

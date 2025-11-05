@@ -39,6 +39,7 @@ function pickTheme(p: Preset) {
   return blueTheme;
 }
 
+// already added earlier to make color overrides propagate
 function paletteDrivenComponentOverrides() {
   return {
     MuiButton: {
@@ -64,16 +65,12 @@ function paletteDrivenComponentOverrides() {
     },
     MuiTabs: {
       styleOverrides: {
-        indicator: ({ theme }: any) => ({
-          backgroundColor: theme.palette.primary.main,
-        }),
+        indicator: ({ theme }: any) => ({ backgroundColor: theme.palette.primary.main }),
       },
     },
     MuiTab: {
       styleOverrides: {
-        root: ({ theme }: any) => ({
-          "&.Mui-selected": { color: theme.palette.primary.main },
-        }),
+        root: ({ theme }: any) => ({ "&.Mui-selected": { color: theme.palette.primary.main } }),
       },
     },
     MuiListItemButton: {
@@ -151,25 +148,38 @@ function paletteDrivenComponentOverrides() {
   };
 }
 
+function ensureFontLinks(fontUrl: string) {
+  if (typeof document === "undefined" || !fontUrl) return;
+  const id = "app-theme-font-link";
+  if (!document.getElementById(id)) {
+    const link = document.createElement("link");
+    link.id = id;
+    link.rel = "stylesheet";
+    link.href = fontUrl;
+    document.head.appendChild(link);
+  }
+  if (fontUrl.includes("fonts.googleapis.com") && !document.getElementById("app-theme-font-preconnect")) {
+    const pre = document.createElement("link");
+    pre.id = "app-theme-font-preconnect";
+    pre.rel = "preconnect";
+    pre.href = "https://fonts.gstatic.com";
+    pre.crossOrigin = "anonymous";
+    document.head.appendChild(pre);
+  }
+}
+
 function withRuntimeOverrides(base: ReturnType<typeof createTheme>) {
   const primary = read(LS_PRIMARY) || undefined;
   const secondary = read(LS_SECONDARY) || undefined;
   const radius = read(LS_RADIUS) ? Number(read(LS_RADIUS)) : undefined;
   const fontUrl = read(LS_FONT_URL) || "";
-  const fontFamily = read(LS_FONT_FAMILY) || "";
+  const fontFamily =
+    read(LS_FONT_FAMILY) ||
+    (typeof base.typography.fontFamily === "string" ? base.typography.fontFamily : "Inter, Roboto, Helvetica, Arial, sans-serif");
 
-  if (typeof document !== "undefined" && fontUrl) {
-    const id = "app-theme-font-link";
-    if (!document.getElementById(id)) {
-      const link = document.createElement("link");
-      link.id = id;
-      link.rel = "stylesheet";
-      link.href = fontUrl;
-      document.head.appendChild(link);
-    }
-  }
+  ensureFontLinks(fontUrl);
 
-  return createTheme({
+  const theme = createTheme({
     ...base,
     palette: {
       ...base.palette,
@@ -177,12 +187,21 @@ function withRuntimeOverrides(base: ReturnType<typeof createTheme>) {
       secondary: { ...base.palette.secondary, ...(secondary ? { main: secondary } : {}) },
     },
     shape: { ...base.shape, ...(Number.isFinite(radius as number) ? { borderRadius: radius as number } : {}) },
-    typography: { ...base.typography, ...(fontFamily ? { fontFamily } : {}) },
+    typography: { ...base.typography, fontFamily },
     components: {
       ...base.components,
       ...paletteDrivenComponentOverrides(),
+      MuiCssBaseline: {
+        styleOverrides: {
+          "html, body, #root": { height: "100%", fontFamily },
+          body: { fontFamily, WebkitFontSmoothing: "antialiased", MozOsxFontSmoothing: "grayscale" },
+          "*": { fontFamily },
+        },
+      },
     },
   });
+
+  return theme;
 }
 
 const preset = getPreset();

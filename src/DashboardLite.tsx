@@ -43,7 +43,8 @@ import { DataGrid } from "@mui/x-data-grid";
 import { type SchadenRow, type SchadenViewKey, SCHADEN_VIEWS, SCHADEN_COLUMNS } from "./SchadenPage";
 import { useTranslation } from "react-i18next";
 
-type User = { id: "max" | "anna"; name: string; avatar: string };
+type User = { id: string; name: string; avatar: string };
+
 type SavedLayout = { name: string; visibleCols: string[]; filterText: string };
 
 const LAYOUT_KEY = "dashboardLayouts";
@@ -54,11 +55,13 @@ export default function DashboardLite({
   onSwitchUser,
   recentSchadens,
   onOpenClaim,
+  usersList,
 }: {
   user: User;
-  onSwitchUser: (id: "max" | "anna") => void;
+  onSwitchUser: (id: string) => void;
   recentSchadens: SchadenRow[];
   onOpenClaim: (row: SchadenRow) => void;
+  usersList: { id: string; name: string; avatar: string }[];
 }) {
   const { t } = useTranslation();
 
@@ -139,11 +142,14 @@ export default function DashboardLite({
           <Select
             size="small"
             value={user.id}
-            onChange={(e) => onSwitchUser(e.target.value as "max" | "anna")}
+            onChange={(e) => onSwitchUser(e.target.value as string)}
             sx={{ mr: 2, minWidth: 150 }}
           >
-            <MenuItem value="max">{t("users.max")}</MenuItem>
-            <MenuItem value="anna">{t("users.anna")}</MenuItem>
+            {usersList.map((u) => (
+              <MenuItem key={u.id} value={u.id}>
+                {u.name}
+              </MenuItem>
+            ))}
           </Select>
           <Avatar sx={{ ml: 1 }}>{user.avatar}</Avatar>
           <Typography variant="body2" sx={{ ml: 1 }}>{user.name}</Typography>
