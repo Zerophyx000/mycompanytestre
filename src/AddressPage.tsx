@@ -33,6 +33,7 @@ import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import type { GridColDef, GridRowParams } from "@mui/x-data-grid";
 import { useTranslation } from "react-i18next";
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const addressData = [
   // (unchanged demo data)
   {
