@@ -27,15 +27,17 @@ import SearchIcon from "@mui/icons-material/Search";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import CloseIcon from "@mui/icons-material/Close";
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import DashboardLite from "./DashboardLite";
 import AdressePage from "./AddressPage";
 import SchadenPage, { type SchadenRow, SCHADEN_ROWS } from "./SchadenPage";
 import SchadenTabs from "./SchadenTabs";
 import { AddressDetailLayout } from "./AddressDetailLayout 2";
 import SchadenCalendar from "./Calender";
+import SettingsTab from "./SettingsTab";
 import { useTranslation } from "react-i18next";
 
-type MainKey = "dashboard" | "adressen" | "schaeden" | "calendar";
+type MainKey = "dashboard" | "adressen" | "schaeden" | "calendar" | "settings";
 
 type TabItem = {
   key: string;
@@ -53,15 +55,36 @@ type User = {
 
 const USERS: Record<User["id"], User> = {
   max: { id: "max", name: "Max Mustermann", avatar: "MM", permissions: ["dashboard", "schaeden", "calendar"] },
-  anna: { id: "anna", name: "Anna Admin", avatar: "AA", permissions: ["dashboard", "adressen"] },
+  anna: { id: "anna", name: "Anna Admin", avatar: "AA", permissions: ["dashboard", "adressen", "settings"] },
 };
 
 const RECENT_MAX = 8;
+const PERMS_KEY_MAX = "app.perms.max";
+const VALID_PERMS = ["dashboard", "adressen", "schaeden", "calendar"] as const;
+
+function loadMaxPerms(): Extract<MainKey, "dashboard" | "adressen" | "schaeden" | "calendar">[] {
+  try {
+    const raw = localStorage.getItem(PERMS_KEY_MAX);
+    if (!raw) return ["dashboard", "schaeden", "calendar"];
+    const arr = JSON.parse(raw) as string[];
+    return arr.filter((x) => (VALID_PERMS as readonly string[]).includes(x)) as any;
+  } catch {
+    return ["dashboard", "schaeden", "calendar"];
+  }
+}
+
+function labelFor(key: MainKey, t: (k: string, opts?: any) => string) {
+  if (key === "dashboard") return t("tabs.dashboard");
+  if (key === "adressen") return t("tabs.addresses");
+  if (key === "schaeden") return t("tabs.claims");
+  if (key === "calendar") return t("tabs.calendar");
+  if (key === "settings") return t("tabs.settings", "Settings");
+  return key;
+}
 
 export default function App() {
   const { t, i18n } = useTranslation();
 
-  // ---- language dropdown (persisted) ----
   const initialLang = (localStorage.getItem("lang") || i18n.language || "en").slice(0,2);
   const [lang, setLang] = React.useState<"en" | "de" | "fr">(
     (["en","de","fr"].includes(initialLang) ? initialLang : "en") as "en" | "de" | "fr"
@@ -71,13 +94,17 @@ export default function App() {
     localStorage.setItem("lang", lang);
   }, [lang, i18n]);
 
-  const [user, setUser] = React.useState<User>(USERS.max);
+  const [user, setUser] = React.useState<User>({ ...USERS.max, permissions: loadMaxPerms() });
   const [tabs, setTabs] = React.useState<TabItem[]>([{ key: "dashboard", label: t("tabs.dashboard") }]);
   const [activeKey, setActiveKey] = React.useState<string>("dashboard");
   const [recentSchadens, setRecentSchadens] = React.useState<SchadenRow[]>([]);
 
   const activeIndex = Math.max(0, tabs.findIndex((t) => t.key === activeKey));
-  const canSee = (k: MainKey) => user.permissions.includes(k);
+  const isDetailTab = activeKey.startsWith("claim:") || activeKey.startsWith("address:");
+  const canSee = (k: MainKey) => {
+    if (k === "settings") return user.id === "anna";
+    return user.permissions.includes(k);
+  };
 
   const openTab = (key: MainKey) => {
     if (!canSee(key)) return;
@@ -114,7 +141,9 @@ export default function App() {
 
   function handleSwitchUser(nextId: User["id"]) {
     if (nextId === user.id) return;
-    const nextUser = USERS[nextId];
+    const base = USERS[nextId];
+    const perms = nextId === "max" ? loadMaxPerms() : base.permissions.filter((k) => k !== "settings");
+    const nextUser: User = { ...base, permissions: perms as any };
     setUser(nextUser);
 
     const filtered = tabs.filter((t) => {
@@ -122,6 +151,7 @@ export default function App() {
       if (t.key === "adressen") return nextUser.permissions.includes("adressen");
       if (t.key === "schaeden") return nextUser.permissions.includes("schaeden");
       if (t.key === "calendar") return nextUser.permissions.includes("calendar");
+      if (t.key === "settings") return nextUser.id === "anna";
       if (t.key.startsWith("address:")) return nextUser.permissions.includes("adressen");
       if (t.key.startsWith("claim:")) return nextUser.permissions.includes("schaeden");
       return false;
@@ -146,12 +176,11 @@ export default function App() {
     if (ti.key === "adressen") return <AdressePage onOpenAddress={openAddressTab} />;
     if (ti.key === "schaeden") return <SchadenPage onOpenClaim={openClaimTab} />;
     if (ti.key === "calendar") return <SchadenCalendar rows={SCHADEN_ROWS} />;
+    if (ti.key === "settings") return <SettingsTab />;
     if (ti.key.startsWith("claim:") && ti.row) return <SchadenTabs claim={ti.row} />;
     if (ti.key.startsWith("address:") && ti.adrKey) return <AddressDetailLayout adrKey={ti.adrKey} />;
     return <Box />;
   }
-
-  const isDetailTab = activeKey.startsWith("claim:") || activeKey.startsWith("address:");
 
   return (
     <Box display="flex" flexDirection="column" height="100vh" width="100vw" overflow="hidden">
@@ -160,7 +189,6 @@ export default function App() {
           <Avatar sx={{ mr: 1 }}>{user.avatar}</Avatar>
           <Typography>{user.name}</Typography>
           <Box flexGrow={1} />
-          {/* Language selector */}
           <Tooltip title={t("topbar.language")}>
             <Select
               size="small"
@@ -238,6 +266,13 @@ export default function App() {
                 {!isDetailTab && <ListItemText primary={t("nav.calendar")} />}
               </ListItemButton>
             )}
+
+            {user.id === "anna" && (
+              <ListItemButton selected={activeKey === "settings"} onClick={() => openTab("settings")}>
+                <ListItemIcon><SettingsOutlinedIcon /></ListItemIcon>
+                {!isDetailTab && <ListItemText primary={t("nav.settings", "Settings")} />}
+              </ListItemButton>
+            )}
           </List>
         </Paper>
 
@@ -253,12 +288,4 @@ export default function App() {
       </Stack>
     </Box>
   );
-}
-
-function labelFor(key: MainKey, t: (k: string, opts?: any) => string) {
-  if (key === "dashboard") return t("tabs.dashboard");
-  if (key === "adressen") return t("tabs.addresses");
-  if (key === "schaeden") return t("tabs.claims");
-  if (key === "calendar") return t("tabs.calendar");
-  return key;
 }

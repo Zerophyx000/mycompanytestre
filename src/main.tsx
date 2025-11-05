@@ -1,18 +1,14 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.tsx'
-import { ThemeProvider, CssBaseline } from "@mui/material";
-import { blueTheme } from "./themes"
-import "./i18n";
-
-
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <ThemeProvider theme={blueTheme}>
-      <CssBaseline/>
-      <App/>
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { CssBaseline, ThemeProvider } from "@mui/material";
+import App from "./App";
+import theme from "./themes";
+import "./i18n";     
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <React.StrictMode>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <App />
     </ThemeProvider>
-    
-  </StrictMode>,
-)
+  </React.StrictMode>
+);
