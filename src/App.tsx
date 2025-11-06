@@ -183,13 +183,56 @@ export default function App() {
     if (ti.key.startsWith("address:") && ti.adrKey) return <AddressDetailLayout adrKey={ti.adrKey} />;
     return <Box />;
   }
+  type UserWarning = { title: string; text: string } | null;
+  const [warningsByUser, setWarningsByUser] = React.useState<Record<string, UserWarning>>({});
 
+  const currentWarning = warningsByUser[user.id] ?? null;
+
+  const triggerWarningForCurrentUser = () => {
+    setWarningsByUser((prev) => ({
+      ...prev,
+      [user.id]: { title: "test", text: "test" },
+    }));
+  };
+
+  const dismissWarningForCurrentUser = () => {
+    setWarningsByUser((prev) => ({ ...prev, [user.id]: null }));
+  };
   return (
     <Box display="flex" flexDirection="column" height="100vh" width="100vw" overflow="hidden">
       <AppBar position="static" elevation={0}>
         <Toolbar>
           <Avatar sx={{ mr: 1 }}>{user.avatar}</Avatar>
           <Typography>{user.name}</Typography>
+          {currentWarning && (
+            <Paper
+              variant="outlined"
+              sx={{
+                ml: 2,
+                px: 2,
+                py: 0.5,
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                bgcolor: "primary.main",
+                color: "primary.contrastText",
+              }}
+            >
+              <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                {currentWarning.title}
+              </Typography>
+              <Typography variant="body2">{currentWarning.text}</Typography>
+              <IconButton
+                size="small"
+                onClick={dismissWarningForCurrentUser}
+                sx={{ ml: 0.5, color: "inherit" }}
+                aria-label="close warning"
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </Paper>
+          )}
+
           <Box flexGrow={1} />
           <Tooltip title={t("topbar.language")}>
             <Select
@@ -206,7 +249,9 @@ export default function App() {
           <Tooltip title={t("topbar.search")}><IconButton size="small"><SearchIcon /></IconButton></Tooltip>
           <Tooltip title={t("topbar.chat")}><IconButton size="small"><ChatBubbleOutlineIcon /></IconButton></Tooltip>
           <Tooltip title={t("topbar.notifications")}><IconButton size="small"><NotificationsNoneIcon /></IconButton></Tooltip>
-          <Button variant="contained" size="small">{t("topbar.action")}</Button>
+          <Button variant="contained" size="small" onClick={triggerWarningForCurrentUser}>
+            {t("topbar.action")}
+          </Button>
         </Toolbar>
 
         <Tabs
